@@ -12,6 +12,9 @@
         init: function () {
             var viewportWidth = $.innerWidth,
                 viewportHeight = $.innerHeight;
+            for (var i = 0; i < $.app.preInitListeners.length; i++) {
+				$.app.preInitListeners[i]();
+			}
             $.app.pos.x = $.app.pos.lon2pos(x);
             $.app.pos.y = $.app.pos.lat2pos(y);
             $.app.pos.z = z;
@@ -21,7 +24,12 @@
             $.app.renderer.context = $.app.renderer.canvas.getContext("2d");
             $.app.renderer.refresh();
             $.app.events.init();
+            for (var i = 0; i < $.app.postInitListeners.length; i++) {
+				$.app.postInitListeners[i]();
+			}
         },
+        preInitListeners : [],
+        postInitListeners : [],
         markers : markers || {
         },
         tileprovider : tileprovider || function (x, y, z) {
@@ -54,11 +62,17 @@
         },
         /* keep track of zoom + pans */
         zoomed: function() {
-//          console.log("zoomed");
+			for (var i = 0; i < $.app.zoomedListeners.length; i++) {
+				$.app.zoomedListeners[i]();
+			}
         },
+        zoomedListeners : [],
         moved: function() {
-//          console.log("moved");
+			for (var i = 0; i < $.app.movedListeners.length; i++) {
+				$.app.movedListeners[i]();
+			}
         },
+        movedListeners : [],
         resized: function () {
             var viewportWidth = $.innerWidth,
                 viewportHeight = $.innerHeight;
@@ -265,7 +279,7 @@
                         else {
                             if (!$.app.renderer.tiles[tileKey]) {
                                 $.app.renderer.tiles[tileKey] = new Image();
-                                $.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, $.app.pos.z);
+                                $.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, $.app.pos.z, $.app.renderer.tiles[tileKey]);
                                 $.app.renderer.tiles[tileKey].onload = function(){
                                     $.app.renderer.refresh();
                                 }
@@ -314,7 +328,7 @@
         /* positioning, conversion between pixel + lon/lat */
         pos: {
             getLonLat: function () {
-                return [$.app.pos.tile2lon($.app.pos.x / $.app.renderer.tilesize, $.app.renderer.maxZ), $.app.pos.tile2lat($.app.pos.y / $.app.renderer.tilesize, $.app.renderer.maxZ)];
+                return [$.app.pos.tile2lon($.app.pos.x / $.app.renderer.tilesize, $.app.renderer.maxZ), $.app.pos.tile2lat($.app.pos.y / $.app.renderer.tilesize, $.app.renderer.maxZ), $.app.pos.z];
             },
             lat2pos: function (lat) {
                 return $.Math.pow(2, $.app.renderer.maxZ) * $.app.renderer.tilesize * (1 - $.Math.log($.Math.tan(lat * $.Math.PI / 180) + 1 / $.Math.cos(lat * $.Math.PI / 180)) / $.Math.PI) / 2;

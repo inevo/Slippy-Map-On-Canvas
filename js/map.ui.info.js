@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function(){
 	app = window.app || {};
-	app.info = app.info || {
+	app.ui = app.ui || {};
+	app.ui.info = app.info || {
 		show : function(){
 			document.getElementById("info").style.display = "block";
 		},

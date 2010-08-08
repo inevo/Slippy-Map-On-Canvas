@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function(){
 	app = window.app || {};
-	app.gps = app.gps || {
+	app.ui = app.ui || {};
+	app.ui.geolocation = app.ui.geolocation || {
 		lastUpdate : 0,
 		init : function () {
 			try {
@@ -18,9 +19,9 @@ document.addEventListener('DOMContentLoaded', function(){
 		},
 		location: function () {
 			var gl;
-			if(gl = app.gps.init()) {
+			if(gl = app.ui.geolocation.init()) {
 				try {
-					gl.getCurrentPosition(app.gps.displayPosition, app.gps.displayError);
+					gl.getCurrentPosition(app.ui.geolocation.displayPosition, app.ui.geolocation.displayError);
 				} catch (e) {
 					console.log(e);
 				}
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			} else {
 				app.recenter(position.coords.longitude, position.coords.latitude);
 			}
-			app.gps.lastUpdate = now();
+			app.ui.geolocation.lastUpdate = now();
 		}
 	}
 }, null);
