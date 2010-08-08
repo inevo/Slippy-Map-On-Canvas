@@ -1,0 +1,23 @@
+CACHE MANIFEST
+
+# This is a comment.
+# Cache manifest version 0.0.1
+# If you change the version number in this comment,
+# the cache manifest is no longer byte-for-byte
+# identical.
+
+index.html
+css/map.css
+css/ui.css
+images/ui.png
+images/blank.gif
+images/marker.png
+js/map.js
+js/map.ui.ini.js
+js/map.ui.info.js
+js/map.ui.geolocation.js
+js/map.tiles.sat.js
+js/map.tiles.db.js
+
+NETWORK:
+*
