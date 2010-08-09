@@ -14,11 +14,11 @@
 		<style type="text/css">
 			@-webkit-keyframes bounce {
 		        from {
-					background-color: rgba(0,255,0,1);
+					background-color: rgba(0,0,0,1);
     		    }
  
 				to {
-					background-color: rgba(0,255,0,0);
+					background-color: rgba(0,0,0,0);
 	    	    }
 			}
 			@-webkit-keyframes error {
@@ -30,6 +30,15 @@
 					background-color: rgba(255,0,0,0);
 	    	    }
 			}
+			@-webkit-keyframes success {
+		        from {
+					background-color: rgba(0,255,0,1);
+    		    }
+ 
+				to {
+					background-color: rgba(0,255,0,0);
+	    	    }
+			}
 			#geo[dispatched=true]{
 				-webkit-animation-name: bounce;
 			 	-webkit-animation-duration: 1s;
@@ -39,6 +48,13 @@
 			}
 			#geo[error=true]{
 				-webkit-animation-name: error;
+			 	-webkit-animation-duration: 10s;
+			 	-webkit-animation-iteration-count: 1;
+			 	-webkit-animation-direction: ease-out;
+			 	-webkit-animation-delay: 0s;
+			}
+			#geo[success=true]{
+				-webkit-animation-name: success;
 			 	-webkit-animation-duration: 10s;
 			 	-webkit-animation-iteration-count: 1;
 			 	-webkit-animation-direction: ease-out;

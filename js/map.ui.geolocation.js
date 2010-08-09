@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			app.ui.geolocation.lastUpdate = now();
 			try {
 				document.getElementById("geo").removeAttribute("dispatched");
+				document.getElementById("geo").setAttribute("success", true);
 			} catch (e){};
 		}
 	}
