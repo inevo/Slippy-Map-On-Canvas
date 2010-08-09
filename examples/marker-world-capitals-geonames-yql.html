@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html manifest="map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>World Capitals | geonames.org | yql</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="../js/map.ui.info.js" type="text/javascript"></script>
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script	type="text/javascript">
+			var geonames_query, yql_select, yql_query; 
+			/* get xml */
+			geonames_query = 	'http://www.geonames.org/servlet/geonames?'+
+								'srv=2&south=90&north=-90&west=-180&east=180&'+
+								'P=1&lat=0&lng=0&zoom=1&fcode=PPLC&numrows=300'
+			/* parse xml - get only usefull stuff */
+			yql_select = 		"select marker.name, marker.lat, marker.lng from xml where "+
+								"url='"+geonames_query+"' "+
+								"| sort (field=\"marker.population\", descending=\"true\")";
+			/* yql query encoded */
+			yql_query = 		'http://query.yahooapis.com/v1/public/yql?q='+
+								escape(yql_select) +
+								'&format=json&callback=mark';
+			/* attach script */
+			yql_script = document.createElement("script");
+            yql_script.type = 'text/javascript';
+            yql_script.src = yql_query;
+            app.postInitListeners.push(function(){
+            	document.body.appendChild(yql_script);
+            });
+            /* yql json callback - convert data and attach to app.markers */
+            function mark(query_results){
+            	if(query_results.error){
+	            	console.log("YQL error: "+query_results.error.description);
+	            } else {
+					var geonames = query_results.query.results.geonames || [];
+					console.log("Found "+geonames.length+" geonames");
+					var marker;
+					app.markers = [];
+					for(var i=0; i<geonames.length; i++){
+						marker = geonames[i].marker;
+						marker.src = "../images/marker.png";
+						marker.lat = parseFloat(marker.lat);
+						marker.lon = parseFloat(marker.lng);
+						delete marker.lng;
+						marker.offsetX = -11;
+						marker.offsetY = -25;
+						app.markers.push(marker);
+					}
+	            }
+	            var preload_marker = new Image;
+				preload_marker.src = "images/marker.png";
+				preload_marker.onload = function(){
+	            	app.renderer.refresh();
+	            }
+            }
+		</script>
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
+			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
+			<li><a class="info" href="javascript:;" onclick="app.ui.info.show(); return false;">x</a></li>
+		</ul>
+		<div id="info">
+			<h1>World Capitals</h1>
+			<p>
+				2010, dFacts Network
+				<br /><br />				
+				webkit only
+				<br /><br />
+				200+ markers<br />
+				data by geonames.org <br />
+				processed with yql.
+				</p>
+			<input type="button" value="close" onclick="app.ui.info.hide()" />
+		</div>
+	</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html manifest="map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>World Capitals | geonames.org | yql</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="../js/map.ui.info.js" type="text/javascript"></script>
+		<script src="../js/map.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
+			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
+			<li><a class="info" href="javascript:;" onclick="app.ui.info.show(); return false;">x</a></li>
+		</ul>
+		<div id="info">
+			<h1>World Capitals</h1>
+			<p>
+				2010, dFacts Network
+				<br /><br />				
+				webkit only
+				<br /><br />
+				200+ markers<br />
+				data by geonames.org <br />
+				processed with yql.
+				</p>
+			<input type="button" value="close" onclick="app.ui.info.hide()" />
+		</div>
+	<script	type="text/javascript">
+		/* data by geonames.org */
+		var marker_src = "../images/marker.png";
+		app = app || {};
+		app.markers = [];
+		app.markers.push({"lat":7.50043,"name":"Ngerulmud","src":marker_src,"lon":134.62355,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":32.87519,"name":"Tripoli","src":marker_src,"lon":13.18746,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-12.04318,"name":"Lima","src":marker_src,"lon":-77.02824,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":26.21536,"name":"Manama","src":marker_src,"lon":50.5832,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":38.71667,"name":"Lisbon","src":marker_src,"lon":-9.13333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":44.80401,"name":"Belgrade","src":marker_src,"lon":20.46513,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.81667,"name":"Yamoussoukro","src":marker_src,"lon":-5.28333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":40.37767,"name":"Baku","src":marker_src,"lon":49.89201,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":47.14151,"name":"Vaduz","src":marker_src,"lon":9.52154,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":51.1801,"name":"Astana","src":marker_src,"lon":71.44598,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-1.28333,"name":"Nairobi","src":marker_src,"lon":36.81667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":5.55602,"name":"Accra","src":marker_src,"lon":-0.1969,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":39.03385,"name":"Pyongyang","src":marker_src,"lon":125.75432,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-8.83833,"name":"Luanda","src":marker_src,"lon":13.23444,"offsetX":-11,"offsetY":-25});
+					app.renderer.refresh();
+
+		app.markers.push({"lat":-18.91433,"name":"Antananarivo","src":marker_src,"lon":47.53098,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":4.94029,"name":"Bandar Seri Begawan","src":marker_src,"lon":114.94806,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.93194,"name":"Colombo","src":marker_src,"lon":79.84778,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.45274,"name":"Banjul","src":marker_src,"lon":-16.57803,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.25,"name":"Belmopan","src":marker_src,"lon":-88.76667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-4.2669,"name":"Brazzaville","src":marker_src,"lon":15.28327,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.13282,"name":"Managua","src":marker_src,"lon":-86.2504,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":8.9936,"name":"Panamá","src":marker_src,"lon":-79.51973,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-9.43333,"name":"Honiara","src":marker_src,"lon":159.95,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":11.55,"name":"Phnom Penh","src":marker_src,"lon":104.91667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":4.36122,"name":"Bangui","src":marker_src,"lon":18.55496,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":3.86667,"name":"Yaoundé","src":marker_src,"lon":11.51667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.30054,"name":"Monrovia","src":marker_src,"lon":-10.7969,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":8.484,"name":"Freetown","src":marker_src,"lon":-13.22994,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-29.31667,"name":"Maseru","src":marker_src,"lon":27.48333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-3.37611,"name":"Bujumbura","src":marker_src,"lon":29.36,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.80448,"name":"Georgetown","src":marker_src,"lon":-58.15527,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.5125,"name":"Niamey","src":marker_src,"lon":2.11178,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-4.61667,"name":"Victoria","src":marker_src,"lon":55.45,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.91667,"name":"Palikir","src":marker_src,"lon":158.15,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-21.20778,"name":"Avarua","src":marker_src,"lon":-159.775,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-22.27631,"name":"Nouméa","src":marker_src,"lon":166.4572,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.41667,"name":"Road Town","src":marker_src,"lon":-64.61667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-29.05459,"name":"Kingston","src":marker_src,"lon":167.96628,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":34.01325,"name":"Rabat","src":marker_src,"lon":-6.83255,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":36.7525,"name":"Algiers","src":marker_src,"lon":3.04197,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":9.05735,"name":"Abuja","src":marker_src,"lon":7.48976,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-1.94995,"name":"Kigali","src":marker_src,"lon":30.05885,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.68935,"name":"San Salvador","src":marker_src,"lon":-89.18718,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":47.49801,"name":"Budapest","src":marker_src,"lon":19.03991,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.0818,"name":"Tegucigalpa","src":marker_src,"lon":-87.20681,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.36423,"name":"Ouagadougou","src":marker_src,"lon":-1.53834,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":4.60971,"name":"Bogotá","src":marker_src,"lon":-74.08175,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-41.28664,"name":"Wellington","src":marker_src,"lon":174.77557,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.13748,"name":"Lomé","src":marker_src,"lon":1.21227,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":36.81897,"name":"Tunis","src":marker_src,"lon":10.16579,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":45.81444,"name":"Zagreb","src":marker_src,"lon":15.97798,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":50.08804,"name":"Praha","src":marker_src,"lon":14.42076,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":0.33654,"name":"São Tomé","src":marker_src,"lon":6.72732,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":39.91987,"name":"Ankara","src":marker_src,"lon":32.85427,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-4.32459,"name":"Kinshasa","src":marker_src,"lon":15.32146,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":9.53795,"name":"Conakry","src":marker_src,"lon":-13.67729,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":43.84864,"name":"Sarajevo","src":marker_src,"lon":18.35644,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.50012,"name":"Santo Domingo","src":marker_src,"lon":-69.98857,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":23.13302,"name":"Havana","src":marker_src,"lon":-82.38304,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":5.86638,"name":"Paramaribo","src":marker_src,"lon":-55.16682,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":25.05823,"name":"Nassau","src":marker_src,"lon":-77.34306,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":48.14816,"name":"Bratislava","src":marker_src,"lon":17.10674,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-22.55941,"name":"Windhoek","src":marker_src,"lon":17.08323,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":32.29149,"name":"Hamilton","src":marker_src,"lon":-64.77797,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-9.44314,"name":"Port Moresby","src":marker_src,"lon":147.17972,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.1084,"name":"Willemstad","src":marker_src,"lon":-68.93354,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-34.83346,"name":"Montevideo","src":marker_src,"lon":-56.16735,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":47.90771,"name":"Ulaanbaatar","src":marker_src,"lon":106.88324,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.64072,"name":"Guatemala City","src":marker_src,"lon":-90.51327,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.15872,"name":"Kingstown","src":marker_src,"lon":-61.22475,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-17.73381,"name":"Port-Vila","src":marker_src,"lon":168.32188,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":19.42847,"name":"Mexico City","src":marker_src,"lon":-99.12766,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":19.28692,"name":"George Town","src":marker_src,"lon":-81.36706,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":10.66617,"name":"Port-of-Spain","src":marker_src,"lon":-61.51657,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":36.14474,"name":"Gibraltar","src":marker_src,"lon":-5.35257,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.29484,"name":"Basseterre","src":marker_src,"lon":-62.7261,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":21.46122,"name":"Grand Turk","src":marker_src,"lon":-71.14188,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.11058,"name":"N'Djamena","src":marker_src,"lon":15.03479,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":11.85,"name":"Bissau","src":marker_src,"lon":-15.58333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.10033,"name":"Nouakchott","src":marker_src,"lon":-15.94975,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":6.49646,"name":"Porto-Novo","src":marker_src,"lon":2.60359,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":0.38333,"name":"Libreville","src":marker_src,"lon":9.45,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.65,"name":"Bamako","src":marker_src,"lon":-8,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":7.08971,"name":"Majuro","src":marker_src,"lon":171.38027,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-13.83333,"name":"Apia","src":marker_src,"lon":-171.76666,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":59.33258,"name":"Stockholm","src":marker_src,"lon":18.0649,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":33.33861,"name":"Baghdad","src":marker_src,"lon":44.39389,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":24.68773,"name":"Riyadh","src":marker_src,"lon":46.72185,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":35.69439,"name":"Tehrān","src":marker_src,"lon":51.42151,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":35.16667,"name":"Nicosia","src":marker_src,"lon":33.36667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-6.17486,"name":"Dodoma","src":marker_src,"lon":35.73792,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":37.95,"name":"Ashgabat","src":marker_src,"lon":58.38333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":33.5102,"name":"Damascus","src":marker_src,"lon":36.29128,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":41.90202,"name":"Vatican City","src":marker_src,"lon":12.45927,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.46633,"name":"San Juan","src":marker_src,"lon":-66.10572,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":43.73333,"name":"Monaco","src":marker_src,"lon":7.41667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":35.89972,"name":"Valletta","src":marker_src,"lon":14.51472,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":49.18333,"name":"Saint Helier","src":marker_src,"lon":-2.1,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-18.14161,"name":"Suva","src":marker_src,"lon":178.44149,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.06667,"name":"Marigot","src":marker_src,"lon":-63.08333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":11.58767,"name":"Djibouti","src":marker_src,"lon":43.14468,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":78.21863,"name":"Longyearbyen","src":marker_src,"lon":15.64676,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":54.68916,"name":"Vilnius","src":marker_src,"lon":25.2798,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":31.95522,"name":"Amman","src":marker_src,"lon":35.94503,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":37.97945,"name":"Athens","src":marker_src,"lon":23.71622,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":24.46667,"name":"Abu Dhabi","src":marker_src,"lon":54.36667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.6937,"name":"Dakar","src":marker_src,"lon":-17.44406,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-12.77944,"name":"Mamoudzou","src":marker_src,"lon":45.22722,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":15.33333,"name":"Asmara","src":marker_src,"lon":38.93333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":9.02497,"name":"Addis Ababa","src":marker_src,"lon":38.74689,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-13.28163,"name":"Matâ'utu","src":marker_src,"lon":-176.17453,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":30.06263,"name":"Cairo","src":marker_src,"lon":31.24967,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":15.54665,"name":"Khartoum","src":marker_src,"lon":32.53361,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":62.01667,"name":"Tórshavn","src":marker_src,"lon":-6.76667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":55.67594,"name":"Copenhagen","src":marker_src,"lon":12.56553,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":3.75,"name":"Malabo","src":marker_src,"lon":8.78333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":46.94809,"name":"Bern","src":marker_src,"lon":7.44744,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":16.70555,"name":"Plymouth","src":marker_src,"lon":-62.21292,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":52.37403,"name":"Amsterdam","src":marker_src,"lon":4.88969,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":48.20849,"name":"Vienna","src":marker_src,"lon":16.37208,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":50.8466,"name":"Brussels","src":marker_src,"lon":4.35277,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":52.52437,"name":"Berlin","src":marker_src,"lon":13.41053,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.89618,"name":"Gustavia","src":marker_src,"lon":-62.84978,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":15.99854,"name":"Basse-Terre","src":marker_src,"lon":-61.72548,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":19.745,"name":"Nay Pyi Taw","src":marker_src,"lon":96.12972,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":56.946,"name":"Rīga","src":marker_src,"lon":24.10589,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":2.03711,"name":"Mogadishu","src":marker_src,"lon":45.34375,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":15.35472,"name":"Sanaa","src":marker_src,"lon":44.20667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":55.75222,"name":"Moscow","src":marker_src,"lon":37.61556,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":49.61167,"name":"Luxembourg","src":marker_src,"lon":6.13,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":53.34399,"name":"Dublin","src":marker_src,"lon":-6.26719,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":48.85341,"name":"Paris","src":marker_src,"lon":2.3488,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":59.43696,"name":"Tallinn","src":marker_src,"lon":24.75353,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42.50779,"name":"Andorra la Vella","src":marker_src,"lon":1.52109,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":54.15,"name":"Douglas","src":marker_src,"lon":-4.48333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":40.4165,"name":"Madrid","src":marker_src,"lon":-3.70256,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":41.89474,"name":"Roma","src":marker_src,"lon":12.4839,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":41.3275,"name":"Tirana","src":marker_src,"lon":19.81889,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42.44111,"name":"Podgorica","src":marker_src,"lon":19.26361,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":46.05108,"name":"Ljubljana","src":marker_src,"lon":14.50513,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-8.52093,"name":"Funafuti","src":marker_src,"lon":179.19877,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-10.42172,"name":"Flying Fish Cove","src":marker_src,"lon":105.67912,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":41.725,"name":"Tbilisi","src":marker_src,"lon":44.79083,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":40.18111,"name":"Yerevan","src":marker_src,"lon":44.51361,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":47.00556,"name":"Chişinău","src":marker_src,"lon":28.8575,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":53.9,"name":"Minsk","src":marker_src,"lon":27.56667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":60.16952,"name":"Helsinki","src":marker_src,"lon":24.93545,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.1,"name":"Bridgetown","src":marker_src,"lon":-59.61667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":4.93333,"name":"Cayenne","src":marker_src,"lon":-52.33333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":64.13548,"name":"Reykjavík","src":marker_src,"lon":-21.89541,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":44.43225,"name":"Bucureşti","src":marker_src,"lon":26.10626,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-54.28111,"name":"Grytviken","src":marker_src,"lon":-36.5092,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-51.7,"name":"Stanley","src":marker_src,"lon":-57.85,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-25.30066,"name":"Asunción","src":marker_src,"lon":-57.63591,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-15.77972,"name":"Brasília","src":marker_src,"lon":-47.92972,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":50.45466,"name":"Kiev","src":marker_src,"lon":30.5238,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":33.88894,"name":"Beirut","src":marker_src,"lon":35.49442,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.60892,"name":"Fort-de-France","src":marker_src,"lon":-61.07334,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42.69751,"name":"Sofia","src":marker_src,"lon":23.32415,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.9957,"name":"Castries","src":marker_src,"lon":-61.00614,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":15.30174,"name":"Roseau","src":marker_src,"lon":-61.38808,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.11667,"name":"Saint John's","src":marker_src,"lon":-61.85,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.52398,"name":"Oranjestad","src":marker_src,"lon":-70.02703,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":12.05644,"name":"Saint George's","src":marker_src,"lon":-61.74849,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":9.93333,"name":"San José","src":marker_src,"lon":-84.08333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":10.5,"name":"Caracas","src":marker_src,"lon":-66.91667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-0.22985,"name":"Quito","src":marker_src,"lon":-78.52495,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":23.61333,"name":"Muscat","src":marker_src,"lon":58.59333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-8.55861,"name":"Dili","src":marker_src,"lon":125.57361,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":52.22977,"name":"Warsaw","src":marker_src,"lon":21.01178,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":25.27932,"name":"Doha","src":marker_src,"lon":51.52245,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42.67272,"name":"Pristina","src":marker_src,"lon":21.16688,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.53917,"name":"Port-au-Prince","src":marker_src,"lon":-72.335,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":1.32914,"name":"South Tarawa","src":marker_src,"lon":172.97802,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.21704,"name":"The Valley","src":marker_src,"lon":-63.05783,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-14.27806,"name":"Pago Pago","src":marker_src,"lon":-170.7025,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-15.40809,"name":"Lusaka","src":marker_src,"lon":28.28636,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-11.70216,"name":"Moroni","src":marker_src,"lon":43.25506,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-13.98333,"name":"Lilongwe","src":marker_src,"lon":33.78333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-24.65451,"name":"Gaborone","src":marker_src,"lon":25.90859,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-20.16194,"name":"Port Louis","src":marker_src,"lon":57.49889,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-26.46667,"name":"Lobamba","src":marker_src,"lon":31.2,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-20.88231,"name":"Saint-Denis","src":marker_src,"lon":55.4504,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-25.74486,"name":"Pretoria","src":marker_src,"lon":28.18783,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-33.42628,"name":"Santiago","src":marker_src,"lon":-70.56656,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-25.96528,"name":"Maputo","src":marker_src,"lon":32.58917,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-19.03332,"name":"Sucre","src":marker_src,"lon":-65.26274,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":34.52813,"name":"Kabul","src":marker_src,"lon":69.17233,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":33.72148,"name":"Islāmābād","src":marker_src,"lon":73.04329,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":23.7104,"name":"Dhaka","src":marker_src,"lon":90.40744,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":45.41117,"name":"Ottawa","src":marker_src,"lon":-75.69812,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":38.53575,"name":"Dushanbe","src":marker_src,"lon":68.77905,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":27.46609,"name":"Thimphu","src":marker_src,"lon":89.64191,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":28.63576,"name":"New Delhi","src":marker_src,"lon":77.22445,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":27.70169,"name":"Kathmandu","src":marker_src,"lon":85.3206,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":41.26465,"name":"Tashkent","src":marker_src,"lon":69.21627,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42.87306,"name":"Bishkek","src":marker_src,"lon":74.60028,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.75,"name":"Bangkok","src":marker_src,"lon":100.51667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-6.21462,"name":"Jakarta","src":marker_src,"lon":106.84513,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.96667,"name":"Vientiane","src":marker_src,"lon":102.6,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-16.5,"name":"La Paz","src":marker_src,"lon":-68.15,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.58458,"name":"Manila","src":marker_src,"lon":120.97063,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-49.35,"name":"Port-aux-Français","src":marker_src,"lon":70.21667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-12.15681,"name":"West Island","src":marker_src,"lon":96.82251,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-25.06597,"name":"Adamstown","src":marker_src,"lon":-130.10147,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-21.13333,"name":"Nuku`alofa","src":marker_src,"lon":-175.2,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-17.53333,"name":"Papeete","src":marker_src,"lon":-149.56667,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-19.05952,"name":"Alofi","src":marker_src,"lon":-169.91867,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":4.1748,"name":"Male","src":marker_src,"lon":73.50888,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":14.92148,"name":"Praia","src":marker_src,"lon":-23.50868,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":29.36972,"name":"Kuwait","src":marker_src,"lon":47.97833,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":0.31628,"name":"Kampala","src":marker_src,"lon":32.58219,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":64.18347,"name":"Nuuk","src":marker_src,"lon":-51.72157,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-26.31667,"name":"Mbabane","src":marker_src,"lon":31.13333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":3.1412,"name":"Kuala Lumpur","src":marker_src,"lon":101.68653,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":17.99702,"name":"Kingston","src":marker_src,"lon":-76.79358,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":39.9075,"name":"Beijing","src":marker_src,"lon":116.39723,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":22.28552,"name":"Hong Kong","src":marker_src,"lon":114.15769,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":37.56826,"name":"Seoul","src":marker_src,"lon":126.97783,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":35.61488,"name":"Tokyo","src":marker_src,"lon":139.5813,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-17.82935,"name":"Harare","src":marker_src,"lon":31.05389,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":1.28967,"name":"Singapore","src":marker_src,"lon":103.85007,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":51.50051,"name":"London","src":marker_src,"lon":-0.12883,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":21.0245,"name":"Hà Nội","src":marker_src,"lon":105.84117,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":25.03917,"name":"Taipei","src":marker_src,"lon":121.525,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-35.28346,"name":"Canberra","src":marker_src,"lon":149.12807,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":43.93333,"name":"San Marino","src":marker_src,"lon":12.45,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":13.47417,"name":"Hagåtña","src":marker_src,"lon":144.74778,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":38.89511,"name":"Washington","src":marker_src,"lon":-77.03637,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":18.3419,"name":"Charlotte Amalie","src":marker_src,"lon":-64.9307,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-34.61315,"name":"Buenos Aires","src":marker_src,"lon":-58.37723,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":42,"name":"Skopje","src":marker_src,"lon":21.43333,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":46.76544,"name":"Saint-Pierre","src":marker_src,"lon":-56.16949,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":-15.93872,"name":"Jamestown","src":marker_src,"lon":-5.71675,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":22.20056,"name":"Aomen","src":marker_src,"lon":113.54611,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":59.91325,"name":"Oslo","src":marker_src,"lon":10.73892,"offsetX":-11,"offsetY":-25});
+		app.markers.push({"lat":49.45981,"name":"Saint Peter Port","src":marker_src,"lon":-2.53527,"offsetX":-11,"offsetY":-25});
+		/* preloading the marker image saves time */
+		var preload_marker = new Image;
+		preload_marker.src = marker_src;
+		preload_marker.onload = function(){
+			app.renderer.refresh();
+		}
+		</script>
+	</body>
+</html>
