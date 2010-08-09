@@ -12,11 +12,21 @@
 		<script src="../js/map.ui.geolocation.js" type="text/javascript"></script>
 		<script src="../js/map.js" type="text/javascript"></script>
 		<style type="text/css">
-			#geo {
-				-webkit-transition: background 1s ease-in-out
+			@-webkit-keyframes bounce {
+		        from {
+					background-color: rgba(255,0,0,1);
+    		    }
+ 
+				to {
+					background-color: rgba(255,255,255,1);
+	    	    }
 			}
 			#geo[dispatched=true]{
-				background-color: rgba(255,0,0,0.9);
+				-webkit-animation-name: bounce;
+			 	-webkit-animation-duration: 1s;
+			 	-webkit-animation-iteration-count: infinite;
+			 	-webkit-animation-direction: ease-in-out;
+			 	-webkit-animation-delay: 0s;
 			}
 		</style>
 	</head>

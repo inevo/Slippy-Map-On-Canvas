@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			app.ui.geolocation.gl.getCurrentPosition(
 				window.app.ui.geolocation.displayPosition,
 				window.app.ui.geolocation.displayError,
-				{maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
+				{maximumAge:600000, timeout:10000, enableHighAccuracy: false, responseTime: 2}
 			);
 		},
 		displayError: function (error) {
