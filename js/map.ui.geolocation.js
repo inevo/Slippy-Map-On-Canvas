@@ -29,23 +29,27 @@ document.addEventListener('DOMContentLoaded', function(){
 			app.ui.geolocation.gl.getCurrentPosition(
 				window.app.ui.geolocation.displayPosition,
 				window.app.ui.geolocation.displayError,
-				{maximumAge:600000, timeout:10000, enableHighAccuracy: false, responseTime: 2}
+				{maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
 			);
 		},
 		displayError: function (error) {
-			console.log("getCurrentPosition error: "+( error.message || " - "));
+			console.log("getCurrentPosition error: "+( error.message || " - "));
 			try {
 				document.getElementById("geo").removeAttribute("dispatched");
 			} catch (e){};
 		},
 		displayPosition: function (position) {
 		 	var now = function(){
-				return (new $.Date()).getTime();
+				return (new Date()).getTime();
 			}
 			var metersPerPixel = [156412,78206,39103,19551,9776,4888,2444,1222 ,611,305,153,76,38,19,10,5,2,1,0.6];
 			if(position.coords && position.coords.accuracy){
-				for(var z=0; z<17 && metersPerPixel[z]*$.app.renderer.tilesize > position.coords.accuracy; z++){}
-				app.recenter(position.coords.longitude, position.coords.latitude, z);
+				for(var z=0; z<17 && metersPerPixel[z]*app.renderer.tilesize > position.coords.accuracy; z++){}
+				if(z){
+					app.recenter(position.coords.longitude, position.coords.latitude, z);
+				} else {
+					app.recenter(position.coords.longitude, position.coords.latitude);			
+				}
 			} else {
 				app.recenter(position.coords.longitude, position.coords.latitude);
 			}
