@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function(){
 	app = window.app || {};
 	app.tiles = app.tiles || {};
 	app.tiles.db = {
+		blank : "images/blank.gif",
+		mime_type : "image/jpeg",
 		init : function(){
 			if (window.openDatabase) {
 				app.tiles.db.sqlite = window.openDatabase('slippy-map-on-canvas', '0.1', 'stores tiles', 20000);
@@ -52,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function(){
 							img.src = url;
 							img.meta = { "x":x, "y":y, "z":z, "provider": "gsat"};
 							img.onload = function(){
-								img.data = app.tiles.db.getBase64Image(this, 'image/jpeg');
+								img.data = app.tiles.db.getBase64Image(this, app.tiles.db.mime_type);
 								app.tiles.db.update(img);
 							}
 						} else {	
@@ -62,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function(){
 					}
 				);
 			});
-			return "images/blank.gif";
+			return app.tiles.db.blank;
 		}
 	}
 	app.preInitListeners.push(app.tiles.db.init);

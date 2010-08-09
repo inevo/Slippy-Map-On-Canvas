@@ -50,6 +50,11 @@
 	background-position:0 -204px;
 }
 
+#buttons li a.setting {
+	background-position:0 2px;
+}
+
+
 #info {
 	background: #fff;
 	background: rgba(255,255,255,0.9);

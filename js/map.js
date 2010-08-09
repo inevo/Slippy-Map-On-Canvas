@@ -272,7 +272,8 @@
 							try {
 	                            $.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff);
 	                        } catch (e) {
-	                        	// something went wrong
+	                            $.app.renderer.context.fillStyle = "#dddddd";
+    	                        $.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
 	                        }
                             $.app.renderer.tiles[tileKey].lastDrawn = now();
                         }
@@ -350,34 +351,7 @@
     "map",  // id of div
     3,      // zoom level
     50,     // lon
-    40,     // lat
-    // markers - optional
-    {	'Berlin' : 
-    	{	src : "images/marker.png",
-			lon : 13.409500,
-			lat : 52.522488,
-			offsetX : -11,
-			offsetY : -25
-		},
-    	'Moskva' : 
-    	{	src : "images/marker.png",
-			lon : 37.617633,
-			lat : 55.755786,
-			offsetX : -11,
-			offsetY : -25
-		},
-    	'Hong Kong' : 
-    	{	src : "images/marker.png",
-			lon : 114.10494,
-			lat : 22.381111,
-			offsetX : -11,
-			offsetY : -25
-		}
-    },
-    // tileprovider, returns url of tile images - optional
-    function(x,y,z){
-        return "http://mt1.google.com/vt/x="+x+"&y="+y+"&z="+z;
-    }
+    40      // lat
 ));
 if (navigator.userAgent.match(/iphone/i)) {
 	setTimeout(scrollTo, 0, 0, 0);
