@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html manifest="map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | geolocation</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="http://code.google.com/apis/gears/gears_init.js" type="text/javascript" charset="utf-8"></script>
+		<script src="../js/map.ui.geolocation.js" type="text/javascript"></script>
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script type="text/javascript">
+
+		</script>
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
+			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
+			<li><a class="gps" href="javascript:;" onclick="app.ui.geolocation.location(); return false;">x</a></li>
+		</ul>
+	</body>
+</html>

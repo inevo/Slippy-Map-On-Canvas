@@ -2,33 +2,35 @@ document.addEventListener('DOMContentLoaded', function(){
 	app = window.app || {};
 	app.ui = app.ui || {};
 	app.ui.geolocation = app.ui.geolocation || {
+		gl : {
+			getCurrentPosition: function(){
+				console.log("no supported geolocation services found");
+			}
+		},
 		lastUpdate : 0,
 		init : function () {
 			try {
-				var gl = navigator.geolocation;
+				app.ui.geolocation.gl = navigator.geolocation;
 				console.log("found native geolocation");
 			} catch (e_nogeolocation) {
 				try {
-					var gl = google.gears.factory.create('beta.geolocation');
+					app.ui.geolocation.gl = google.gears.factory.create('beta.geolocation');
 					console.log("no geolocation, using gears");
 				} catch (e_nogears) {
 					console.log("no geolocation or gears plugin found");
 				}
 			}
-			return gl;
 		},
 		location: function () {
-			var gl;
-			if(gl = app.ui.geolocation.init()) {
-				try {
-					gl.getCurrentPosition(app.ui.geolocation.displayPosition, app.ui.geolocation.displayError);
-				} catch (e) {
-					console.log(e);
-				}
-			}
+			console.log("dispatch getCurrentPosition");
+			app.ui.geolocation.gl.getCurrentPosition(
+				window.app.ui.geolocation.displayPosition,
+				window.app.ui.geolocation.displayError,
+				{maximumAge:600000, timeout:600000, enableHighAccuracy: true, responseTime: 5}
+			);
 		},
 		displayError: function (error) {
-			console.log("no location");
+			console.log("getCurrentPosition error: ",error.message);
 		},
 		displayPosition: function (position) {
 		 	var now = function(){
@@ -44,4 +46,5 @@ document.addEventListener('DOMContentLoaded', function(){
 			app.ui.geolocation.lastUpdate = now();
 		}
 	}
+	app.preInitListeners.push(app.ui.geolocation.init);
 }, null);
