@@ -245,14 +245,88 @@
             lastRenderTime: 0,
             tiles: {},
             tilesize: 256,
-            /* repaint canvas, load missing images */
+            layers :  [
+				{
+					/* repaint canvas, load missing images */
+					id: 'tiles',
+					zindex: 0,
+					callback :
+					function(z,zp,sz,xMin,xMax,yMin,yMax){
+						var encodeIndex = function (x, y, z) {
+							return x + "," + y + "," + z;
+						};
+						var now = function () {
+							return (new $.Date()).getTime();
+						};
+						for (var x = $.Math.floor(xMin / sz); x < $.Math.ceil(xMax / sz); ++x) {
+							for (var y = $.Math.floor(yMin / sz); y < $.Math.ceil(yMax / sz); ++y) {
+								var xoff = $.Math.round((x * sz - xMin) / zp);
+								var yoff = $.Math.round((y * sz - yMin) / zp);
+								var tileKey = encodeIndex(x, y, z);
+								if ($.app.renderer.tiles[tileKey] && $.app.renderer.tiles[tileKey].complete) {
+									try {
+										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff);
+									} catch (e) {
+										$.app.renderer.context.fillStyle = "#dddddd";
+										$.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
+									}
+									$.app.renderer.tiles[tileKey].lastDrawn = now();
+								}
+								else {
+									if (!$.app.renderer.tiles[tileKey]) {
+										$.app.renderer.tiles[tileKey] = new Image();
+										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, $.app.pos.z, $.app.renderer.tiles[tileKey]);
+										$.app.renderer.tiles[tileKey].onload = function(){
+											$.app.renderer.refresh();
+										}
+									}
+									$.app.renderer.context.fillStyle = "#dddddd";
+									$.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
+								}
+							}
+						}
+					}   
+				},
+				{
+					id: 'marker',
+					zindex: 99,
+					callback :
+					function(z,zp,sz,xMin,xMax,yMin,yMax){
+						for(var marker in $.app.markers){
+							if($.app.markers[marker].img && $.app.markers[marker].img.complete){
+								x = $.Math.round(($.app.pos.lon2pos($.app.markers[marker].lon)-xMin) / zp) + $.app.markers[marker].offsetX;
+								y = $.Math.round(($.app.pos.lat2pos($.app.markers[marker].lat)-yMin) / zp) + $.app.markers[marker].offsetY;
+								if(x>-50 && x<$.app.renderer.canvas.width+50 && y>-50 && y<$.app.renderer.canvas.height+50){
+									try {
+										$.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
+									} catch (e) {
+									}
+								}
+							} else {
+								$.app.markers[marker].img = new Image();
+								$.app.markers[marker].img.src = $.app.markers[marker].src;
+								$.app.markers[marker].img.onload = function(){
+									$.app.renderer.refresh();
+								}
+							}
+						}
+					}
+				}
+			],
+			addLayer : function (layer) {
+				function sortZIndex(a, b) {
+					var x = a.zindex;
+					var y = b.zindex;
+					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+				}
+				var id = layer.id;
+				$.app.renderer.layers.push(layer);
+				$.app.renderer.layers.sort(sortZIndex);
+			},
             refresh: function () {
                 /* private/ nested functions */
                 var now = function () {
                     return (new $.Date()).getTime();
-                };
-                var encodeIndex = function (x, y, z) {
-                    return x + "," + y + "," + z;
                 };
                 var z = $.app.pos.z;
                 var zp = $.Math.pow(2, $.app.renderer.maxZ - z);
@@ -263,54 +337,16 @@
                 var yMin = $.app.pos.y - h / 2;
                 var xMax = $.app.pos.x + w / 2;
                 var yMax = $.app.pos.y + h / 2;
-                for (var x = $.Math.floor(xMin / sz); x < $.Math.ceil(xMax / sz); ++x) {
-                    for (var y = $.Math.floor(yMin / sz); y < $.Math.ceil(yMax / sz); ++y) {
-                        var xoff = $.Math.round((x * sz - xMin) / zp);
-                        var yoff = $.Math.round((y * sz - yMin) / zp);
-                        var tileKey = encodeIndex(x, y, z);
-                        if ($.app.renderer.tiles[tileKey] && $.app.renderer.tiles[tileKey].complete) {
-							try {
-	                            $.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff);
-	                        } catch (e) {
-	                            $.app.renderer.context.fillStyle = "#dddddd";
-    	                        $.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
-	                        }
-                            $.app.renderer.tiles[tileKey].lastDrawn = now();
-                        }
-                        else {
-                            if (!$.app.renderer.tiles[tileKey]) {
-                                $.app.renderer.tiles[tileKey] = new Image();
-                                $.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, $.app.pos.z, $.app.renderer.tiles[tileKey]);
-                                $.app.renderer.tiles[tileKey].onload = function(){
-                                    $.app.renderer.refresh();
-                                }
-                            }
-                            $.app.renderer.context.fillStyle = "#dddddd";
-                            $.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
-                        }
-                    }
-                }
-                for(var marker in $.app.markers){
-                    if($.app.markers[marker].img && $.app.markers[marker].img.complete){
-                        x = $.Math.round(($.app.pos.lon2pos($.app.markers[marker].lon)-xMin) / zp) + $.app.markers[marker].offsetX;
-                        y = $.Math.round(($.app.pos.lat2pos($.app.markers[marker].lat)-yMin) / zp) + $.app.markers[marker].offsetY;
-                        if(x>-50 && x<$.app.renderer.canvas.width+50 && y>-50 && y<$.app.renderer.canvas.height+50){
-							try {
-	                            $.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
-	                        } catch (e) {
-	                        }
-                        }
-                    } else {
-                        $.app.markers[marker].img = new Image();
-                        $.app.markers[marker].img.src = $.app.markers[marker].src;
-                        $.app.markers[marker].img.onload = function(){
-                            $.app.renderer.refresh();
-                        }
-                    }
-                }
+				for (l in $.app.renderer.layers) {
+					$.app.renderer.layers[l].callback(z,zp,sz,xMin,xMax,yMin,yMax);
+				}
+				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
+					$.app.renderer.refreshListeners[i]();
+				}
                 $.app.renderer.garbage();
                 $.app.renderer.lastRenderTime = now();
             },
+            refreshListeners : {},
             /* garbage collector */
             garbage: function () {
                 if ($.app.renderer.tiles) {
