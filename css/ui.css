@@ -28,6 +28,9 @@
 	text-indent: -999em;
 	opacity : 0.8;
 	outline: none;
+	border-radius: 20px;
+	-webkit-border-radius: 20px;
+
 }
 
 #buttons li a:hover, #buttons li a:active {
