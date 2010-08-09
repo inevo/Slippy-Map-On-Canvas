@@ -17,20 +17,26 @@ document.addEventListener('DOMContentLoaded', function(){
 					app.ui.geolocation.gl = google.gears.factory.create('beta.geolocation');
 					console.log("no geolocation, using gears");
 				} catch (e_nogears) {
-					console.log("no geolocation or gears plugin found");
+					console.log("no geolocation or gears plugin found",e_nogears);
 				}
 			}
 		},
 		location: function () {
 			console.log("dispatch getCurrentPosition");
+			try {
+				document.getElementById("geo").setAttribute("dispatched", true);
+			} catch (e){};
 			app.ui.geolocation.gl.getCurrentPosition(
 				window.app.ui.geolocation.displayPosition,
 				window.app.ui.geolocation.displayError,
-				{maximumAge:600000, timeout:600000, enableHighAccuracy: true, responseTime: 5}
+				{maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
 			);
 		},
 		displayError: function (error) {
-			console.log("getCurrentPosition error: ",error.message);
+			console.log("getCurrentPosition error: "+( error.message || " - "));
+			try {
+				document.getElementById("geo").removeAttribute("dispatched");
+			} catch (e){};
 		},
 		displayPosition: function (position) {
 		 	var now = function(){
@@ -44,6 +50,9 @@ document.addEventListener('DOMContentLoaded', function(){
 				app.recenter(position.coords.longitude, position.coords.latitude);
 			}
 			app.ui.geolocation.lastUpdate = now();
+			try {
+				document.getElementById("geo").removeAttribute("dispatched");
+			} catch (e){};
 		}
 	}
 	app.preInitListeners.push(app.ui.geolocation.init);
