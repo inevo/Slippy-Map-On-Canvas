@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function(){
 			console.log("getCurrentPosition error: "+( error.message || " - "));
 			try {
 				document.getElementById("geo").removeAttribute("dispatched");
+				document.getElementById("geo").setAttribute("error", true);
 			} catch (e){};
 		},
 		displayPosition: function (position) {
