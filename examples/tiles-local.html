@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html manifest="map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | tiles from local source</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script type="text/javascript">
+			var now = function(){
+                    return (new Date()).getTime();
+             }
+			var srcImagePath = "marker.png";
+			document.addEventListener('DOMContentLoaded', function(){
+				app = window.app || {};
+				app.tiles = app.tiles || {};
+				app.tiles.local = {
+					init : function(){
+						console.log("switching");
+						app.tileprovider = app.tiles.local.tileprovider;
+					},
+					recenter : function(){
+						app.recenter(0,0,0);
+					},
+					tileprovider :	function(x,y,z){
+						return "../tile.php?src="+srcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png&timestamp="+now();
+					}
+				};
+				app.preInitListeners.push(app.tiles.local.init);
+				app.postInitListeners.push(app.tiles.local.recenter);
+			}, null);
+		</script>
+		<script src="../js/map.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
+			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
+		</ul>
+	</body>
+</html>

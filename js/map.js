@@ -40,16 +40,30 @@
             var url = "http://" + sub[rand(3)] + ".tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png";
             return url;
         },
-        zoomIn: function () {
+        useFractionalZoom : true,
+        zoomIn: function (step, round) {
+        console.log(round);
             if ($.app.pos.z < $.app.renderer.maxZ) {
-                ++$.app.pos.z;
+                $.app.pos.z += step || 1;
+                if(round !== false) {
+                	$.app.pos.z = $.Math.round($.app.pos.z);
+                }
+                if($.app.pos.z > $.app.renderer.maxZ) {
+                	$.app.pos.z = $.app.renderer.maxZ;
+                }
                 $.app.renderer.refresh();
                 $.app.zoomed();
             }
         },
-        zoomOut: function () {
+        zoomOut: function (step, round) {
             if ($.app.pos.z > 0) {
-                --$.app.pos.z;
+                $.app.pos.z -= step || 1;
+                if(round !== false) {
+                	$.app.pos.z = $.Math.round($.app.pos.z);
+                }
+                if($.app.pos.z<0) {
+                	$.app.pos.z = 0;
+                }
                 $.app.renderer.refresh();
                 $.app.zoomed();
             }
@@ -57,7 +71,7 @@
         recenter: function(lon,lat,zoom){
             $.app.pos.x = $.app.pos.lon2pos(lon);
             $.app.pos.y = $.app.pos.lat2pos(lat);
-            if(zoom>0) $.app.pos.z = zoom;
+            if(zoom>=0) $.app.pos.z = zoom;
             $.app.renderer.refresh();        
         },
         /* keep track of zoom + pans */
@@ -137,11 +151,11 @@
                     delta = -event.detail / 3;
                 }
                 if (delta > 0) {
-                    $.app.zoomIn();
+                    $.app.zoomIn(delta/100, false);
                     $.app.zoomed();
 
                 } else if (delta < 0) {
-                    $.app.zoomOut();
+                    $.app.zoomOut(-delta/100, false);
                     $.app.zoomed();
                 }
             },
@@ -157,7 +171,7 @@
                 $.app.pos.y += dY * $.Math.pow(2, $.app.renderer.maxZ - $.app.pos.z);
                 $.app.events.lastMouseX = x;
                 $.app.events.lastMouseY = y;
-                $.app.zoomIn();
+                $.app.zoomIn(1, true);
             },
             /* maps touch events to mouse events */
             touchHandler: function (event) {
@@ -205,11 +219,11 @@
                 var touches = event.changedTouches;
                 if (event.scale) {
                     if (event.scale > 1.5) {
-                        $.app.zoomIn();
+                        $.app.zoomIn(0.1, false);
                         return true;
                     }
                     if (event.scale < 0.5) {
-                        $.app.zoomOut();
+                        $.app.zoomOut(0.1, false);
                         return true;
                     }
                 }
@@ -251,7 +265,12 @@
 					id: 'tiles',
 					zindex: 0,
 					callback :
-					function(z,zp,sz,xMin,xMax,yMin,yMax){
+					function(z,zp,sz,xMin,xMax,yMin,yMax, tilesize, zf){
+						$.app.renderer.context.fillStyle = "#dddddd";
+			
+					    var offsetX = $.Math.floor((zf-1)*(xMax-xMin)/zp/2);
+					    var offsetY = $.Math.floor((zf-1)*(yMax-yMin)/zp/2);
+						var maxTileNumber = $.Math.pow(2,z)-1;
 						var encodeIndex = function (x, y, z) {
 							return x + "," + y + "," + z;
 						};
@@ -260,28 +279,41 @@
 						};
 						for (var x = $.Math.floor(xMin / sz); x < $.Math.ceil(xMax / sz); ++x) {
 							for (var y = $.Math.floor(yMin / sz); y < $.Math.ceil(yMax / sz); ++y) {
-								var xoff = $.Math.round((x * sz - xMin) / zp);
-								var yoff = $.Math.round((y * sz - yMin) / zp);
+								var xoff = $.Math.round((x * sz - xMin) / zp * zf)-offsetX;
+								var yoff = $.Math.round((y * sz - yMin) / zp * zf)-offsetY;
+								
 								var tileKey = encodeIndex(x, y, z);
+								var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), z-1);
+								if(x>maxTileNumber || y>maxTileNumber || x<0 || y<0){
+									$.app.renderer.context.fillStyle = "#dddddd";
+									$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+	
+								} else {
 								if ($.app.renderer.tiles[tileKey] && $.app.renderer.tiles[tileKey].complete) {
 									try {
-										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff);
+										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff, tilesize, tilesize);
 									} catch (e) {
 										$.app.renderer.context.fillStyle = "#dddddd";
-										$.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
+										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
 									}
 									$.app.renderer.tiles[tileKey].lastDrawn = now();
-								}
-								else {
+								} else {
+									if ($.app.renderer.tiles[tileKeyAbove] && $.app.renderer.tiles[tileKeyAbove].complete){
+										var tileOffsetX = xoff-$.Math.floor((x-$.Math.ceil(x/2)*2)*tilesize*2);
+										var tileOffsetY = yoff-$.Math.floor((y-$.Math.ceil(y/2)*2)*tilesize*2);
+										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKeyAbove], tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
+									} else {
+										$.app.renderer.context.fillStyle = "#dddddd";
+										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+									}
 									if (!$.app.renderer.tiles[tileKey]) {
 										$.app.renderer.tiles[tileKey] = new Image();
-										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, $.app.pos.z, $.app.renderer.tiles[tileKey]);
+										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, z, $.app.renderer.tiles[tileKey]);
 										$.app.renderer.tiles[tileKey].onload = function(){
 											$.app.renderer.refresh();
 										}
 									}
-									$.app.renderer.context.fillStyle = "#dddddd";
-									$.app.renderer.context.fillRect(xoff, yoff, $.app.renderer.tilesize, $.app.renderer.tilesize);
+								}
 								}
 							}
 						}
@@ -291,11 +323,13 @@
 					id: 'marker',
 					zindex: 99,
 					callback :
-					function(z,zp,sz,xMin,xMax,yMin,yMax){
+					function(z,zp,sz,xMin,xMax,yMin,yMax, tilesize, zf){
+					    var offsetX = $.Math.round((zf-1)*(xMax-xMin)/zp/2);
+					    var offsetY = $.Math.round((zf-1)*(yMax-yMin)/zp/2);
 						for(var marker in $.app.markers){
 							if($.app.markers[marker].img && $.app.markers[marker].img.complete){
-								x = $.Math.round(($.app.pos.lon2pos($.app.markers[marker].lon)-xMin) / zp) + $.app.markers[marker].offsetX;
-								y = $.Math.round(($.app.pos.lat2pos($.app.markers[marker].lat)-yMin) / zp) + $.app.markers[marker].offsetY;
+								x = $.Math.round(($.app.pos.lon2pos($.app.markers[marker].lon)-xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
+								y = $.Math.round(($.app.pos.lat2pos($.app.markers[marker].lat)-yMin) / zp * zf) + $.app.markers[marker].offsetY - offsetY;
 								if(x>-50 && x<$.app.renderer.canvas.width+50 && y>-50 && y<$.app.renderer.canvas.height+50){
 									try {
 										$.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
@@ -329,16 +363,19 @@
                     return (new $.Date()).getTime();
                 };
                 var z = $.app.pos.z;
+                var zf = $.app.useFractionalZoom?(1+z-parseInt(z)):1;
+                z = parseInt(z);
                 var zp = $.Math.pow(2, $.app.renderer.maxZ - z);
                 var w = $.app.renderer.canvas.width * zp;
                 var h = $.app.renderer.canvas.height * zp;
                 var sz = $.app.renderer.tilesize * zp;
+                var tilesize = $.Math.ceil($.app.renderer.tilesize*zf);
                 var xMin = $.app.pos.x - w / 2;
                 var yMin = $.app.pos.y - h / 2;
                 var xMax = $.app.pos.x + w / 2;
                 var yMax = $.app.pos.y + h / 2;
 				for (l in $.app.renderer.layers) {
-					$.app.renderer.layers[l].callback(z,zp,sz,xMin,xMax,yMin,yMax);
+					$.app.renderer.layers[l].callback(z,zp,sz,xMin,xMax,yMin,yMax,tilesize, zf);
 				}
 				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
 					$.app.renderer.refreshListeners[i]();
@@ -349,6 +386,7 @@
             refreshListeners : {},
             /* garbage collector */
             garbage: function () {
+            	return;
                 if ($.app.renderer.tiles) {
                     var remove = [];
                     for (var key in $.app.renderer.tiles) {

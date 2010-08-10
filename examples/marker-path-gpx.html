@@ -45,14 +45,16 @@
 				}
 			}
 			app.preInitListeners.push(function(){
-				drawPath = function(z,zp,sz,xMin,xMax,yMin,yMax){
+				drawPath = function(z, zp, sz, xMin, xMax, yMin, yMax, tilesize, diff){
+					 var offsetX = Math.round((diff-1)*(xMax-xMin)/zp/2);
+					 var offsetY = Math.round((diff-1)*(yMax-yMin)/zp/2);
 
 					function lon2x(lon){
-				        return Math.round((app.pos.lon2pos(lon)-xMin) / zp);
+				        return Math.round((app.pos.lon2pos(lon)-xMin) / zp*diff)-offsetX;
 				    }
 
 					function lat2y(lat){
-                        return Math.round((app.pos.lat2pos(lat)-yMin) / zp) ;
+                        return Math.round((app.pos.lat2pos(lat)-yMin) / zp*diff)-offsetY;
 					}
 					for(t in tracks){
 						var track = tracks[t];

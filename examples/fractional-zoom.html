@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html manifest="map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | fractional zoom</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			app.preInitListeners.push(function(){
+            	app.markers =    
+					{	'Berlin' : 
+						{	src : "../images/marker.png",
+							lon : 13.409500,
+							lat : 52.522488,
+							offsetX : -11,
+							offsetY : -25
+						},
+						'Moskva' : 
+						{	src : "../images/marker.png",
+							lon : 37.617633,
+							lat : 55.755786,
+							offsetX : -11,
+							offsetY : -25
+						},
+						'Hong Kong' : 
+						{	src : "../images/marker.png",
+							lon : 114.10494,
+							lat : 22.381111,
+							offsetX : -11,
+							offsetY : -25
+						}
+					}
+            });
+		</script>
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(0.2, false); return false;">+</a></li>
+			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(0.2, false); return false;">-</a></li>
+		</ul>
+	</body>
+</html>
