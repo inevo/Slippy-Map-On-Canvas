@@ -385,11 +385,10 @@
             refreshListeners : {},
             /* garbage collector */
             garbage: function () {
-            	return;
                 if ($.app.renderer.tiles) {
                     var remove = [];
                     for (var key in $.app.renderer.tiles) {
-                        if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].lastDrawn < ($.app.renderer.lastRenderTime - 1500)) {
+                        if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].lastDrawn < ($.app.renderer.lastRenderTime - 60000)) {
                             remove.push(key);
                         }
                     }
