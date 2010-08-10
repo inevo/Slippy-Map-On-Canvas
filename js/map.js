@@ -42,7 +42,6 @@
         },
         useFractionalZoom : true,
         zoomIn: function (step, round) {
-        console.log(round);
             if ($.app.pos.z < $.app.renderer.maxZ) {
                 $.app.pos.z += step || 1;
                 if(round !== false) {
