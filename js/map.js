@@ -180,8 +180,13 @@
                 var now = function(){
                     return (new $.Date()).getTime();
                 }
-                var touches = event.targetTouches,
-                    type, first = touches[0];
+                var touches;
+                if(event.type !== 'touchend'){
+                	touches = event.targetTouches;
+                } else {
+                	touches = event.changedTouches;                
+                }
+                var   type, first = touches[0];
                 if (touches.length === 1) {
                     switch (event.type) {
                     case 'touchstart':
@@ -190,6 +195,7 @@
                     case 'touchmove':
                         type = 'mousemove';
                         break;
+                    case 'touchcancel':
                     case 'touchend':
                         type = 'mouseup';
                         break;
@@ -198,6 +204,7 @@
                     }
                     if ($.app.events.lastTouchEventBeforeLast && 
                         event.type == 'touchend' && 
+                        $.app.events.lastTouchEvent.type === 'touchstart' &&
                         $.app.events.lastTouchEventBeforeLast.type == 'touchend' && 
                         event.x == $.app.events.lastTouchEventBeforeLast.x && 
                         event.y == $.app.events.lastTouchEventBeforeLast.y && 
