@@ -360,7 +360,11 @@
                                                 );  
 */
                                                 $.app.renderer.context.drawImage(
-                                                $.app.renderer.tiles[t][tileKeyAbove], tilePartOffsetX * 127, tilePartOffsetY * 127, 127, 127, tileOffsetX + tilesize * tilePartOffsetX, tileOffsetY + tilesize * tilePartOffsetY, tilesize, tilesize);
+                                                $.app.renderer.tiles[t][tileKeyAbove], 
+                                                	tilePartOffsetX * $.app.renderer.tilesize/2, 
+                                                	tilePartOffsetY * $.app.renderer.tilesize/2,
+                                                	$.app.renderer.tilesize/2, $.app.renderer.tilesize/2,
+                                                	tileOffsetX + tilesize * tilePartOffsetX, tileOffsetY + tilesize * tilePartOffsetY, tilesize, tilesize);
 
                                                 $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId = id;
                                             } catch (e) {
