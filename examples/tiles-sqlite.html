@@ -8,19 +8,18 @@
 		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
 		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
-		<script src="../js/map.tiles.db.js" type="text/javascript"></script> -->
-		<script src="../js/map.ui.info.js" type="text/javascript"></script>
+		<script src="../js/map.tiles.db.js" type="text/javascript"></script>
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			app.preInitListeners.push(function(){
-            	app.tiles.db.blank = "../images/blank.gif";
-				app.tiles.db.mime_type = "image/jpeg";
-            });
+				app.tiles.db.blank = "../images/blank.gif";
+				app.tiles.db.mime_type = "image/png"; // osm tile are png
+			});
 		</script>
 	</head>
 	<body>
 		<canvas id="map">
-			Your  browser doesn't support canvas elements.			
+			Your	 browser doesn't support canvas elements.			
 		</canvas>
 		<ul id="buttons">
 			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>

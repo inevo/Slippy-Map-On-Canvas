@@ -3,7 +3,8 @@ document.addEventListener('DOMContentLoaded', function(){
 	app.tiles = app.tiles || {};
 	app.tiles.db = {
 		blank : "images/blank.gif",
-		mime_type : "image/jpeg",
+		mime_type : "image/png",
+		providerID: 'mapnik',
 		init : function(){
 			if (window.openDatabase) {
 				app.tiles.db.sqlite = window.openDatabase('slippy-map-on-canvas', '0.1', 'stores tiles', 20000);
@@ -45,14 +46,14 @@ document.addEventListener('DOMContentLoaded', function(){
 			return canvas.toDataURL(mimetype,'quality=20');
 		},
 		tileprovider  : function(x,y,z, imageObject){
-			var url = "http://khm1.google.com/kh/v=66&x="+x+"&y="+y+"&z="+z;
+			var url = "http://a.tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png";
 			app.tiles.db.sqlite.transaction(function(tx) {
-				tx.executeSql("SELECT data FROM tiles WHERE provider = ? AND x = ? AND y = ? AND z = ?", ["gsat", x, y, z], 
+				tx.executeSql("SELECT data FROM tiles WHERE provider = ? AND x = ? AND y = ? AND z = ?", [app.tiles.db.providerID, x, y, z], 
 					function(tx, result) {
 						if(!result.rows.length){
 							var img = new Image;
 							img.src = url;
-							img.meta = { "x":x, "y":y, "z":z, "provider": "gsat"};
+							img.meta = { "x":x, "y":y, "z":z, "provider": app.tiles.db.providerID};
 							img.onload = function(){
 								img.data = app.tiles.db.getBase64Image(this, app.tiles.db.mime_type);
 								app.tiles.db.update(img);
