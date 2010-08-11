@@ -149,6 +149,17 @@
 	background: #ddd;
 }
 
+#copyright {
+	position: absolute;
+	bottom: 0px;
+	left: 0px;
+	padding: 5px;
+	color:	#fff;
+	text-shadow: #000 1px 1px 3px;
+	-webkit-text-shadow: rgba(0,0,0,0.5) 1px 1px 3px;
+	font: 10px/1 Arial, sans-serif;
+}
+
 @media screen and (max-device-width: 320px) {
 	#buttons {
 		right: 15px;
