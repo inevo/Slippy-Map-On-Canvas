@@ -466,15 +466,16 @@
             refreshLastStart : 0,
             refreshFPS : 50,
             refreshListeners : {},
-            /* garbage collector, purges tiles if more than 100 are loaded and tile is more than 10 refresh cycles old */
+            /* garbage collector, purges tiles if more than 500 are loaded and tile is more than 100 refresh cycles old */
             garbage: function () {
-            	if($.app.renderer.tilecount>100){
+                console.log($.app.renderer.tilecount);
+            	if($.app.renderer.tilecount>200){
 	                if ($.app.renderer.tiles) {
     	                var remove = [];
         	            for (var key in $.app.renderer.tiles) {
             	            if ($.app.renderer.tiles[key] && 
 	            	            $.app.renderer.tiles[key].complete &&
-								$.app.renderer.tiles[key].lastDrawnId < ($.app.renderer.refreshCounter - 10)) {
+								$.app.renderer.tiles[key].lastDrawnId < ($.app.renderer.refreshCounter - 100)) {
 	                            remove.push(key);
     	                    }
         	            }
