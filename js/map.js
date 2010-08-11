@@ -410,9 +410,15 @@
                 return $.Math.pow(2, $.app.renderer.maxZ) * $.app.renderer.tilesize * (lon + 180) / 360;
             },
             tile2lon: function (x, z) {
+            	if(typeof z === 'undefined'){
+            		z = $.app.pos.z;
+            	}
                 return (x / $.Math.pow(2, z) * 360 - 180);
             },
             tile2lat: function (y, z) {
+            	if(typeof z === 'undefined'){
+            		z = $.app.pos.z;
+            	}
                 var n = $.Math.PI - 2 * $.Math.PI * y / $.Math.pow(2, z);
                 return (180 / $.Math.PI * $.Math.atan(0.5 * ($.Math.exp(n) - $.Math.exp(-n))));
             }
@@ -421,9 +427,9 @@
     $.document.addEventListener('DOMContentLoaded', $.app.init, null);
 }(  window, // global
     "map",  // id of div
-    3,      // zoom level
-    50,     // lon
-    40      // lat
+    1,      // zoom level
+    0,     // lon
+    0      // lat
 ));
 if (navigator.userAgent.match(/iphone/i)) {
 	setTimeout(scrollTo, 0, 0, 0);
