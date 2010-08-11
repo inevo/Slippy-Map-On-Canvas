@@ -10,61 +10,37 @@
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			var tracks = { 'berlin-hongkong' : {
-													strokeStyle : "#f00",
-													lineWidth : 4,
-													points : [[13.409500,52.522488],[37.617633, 55.755786],[114.10494,22.381111]]
-							}
-			};
 			app.preInitListeners.push(function(){
-            	app.markers =    
-					{	'Berlin' : 
-						{	src : "../images/marker.png",
-							lon : 13.409500,
-							lat : 52.522488,
-							offsetX : -11,
-							offsetY : -25
-						},
-						'Moskva' : 
-						{	src : "../images/marker.png",
-							lon : 37.617633,
-							lat : 55.755786,
-							offsetX : -11,
-							offsetY : -25
-						},
-						'Hong Kong' : 
-						{	src : "../images/marker.png",
-							lon : 114.10494,
-							lat : 22.381111,
-							offsetX : -11,
-							offsetY : -25
-						}
+				app.tracks = {
+					'berlin-hongkong' : {
+						strokeStyle : "#f00",
+						lineWidth : 4,
+						points : [[13.409500,52.522488],[37.617633, 55.755786],[114.10494,22.381111]]
 					}
-				drawPath = function(z,zp,sz,xMin,xMax,yMin,yMax, tilesize, diff){
-					 var offsetX = Math.round((diff-1)*(xMax-xMin)/zp/2);
-					 var offsetY = Math.round((diff-1)*(yMax-yMin)/zp/2);
-
-					function lon2x(lon){
-				        return Math.round((app.pos.lon2pos(lon)-xMin) / zp*diff)-offsetX;
-				    }
-
-					function lat2y(lat){
-                        return Math.round((app.pos.lat2pos(lat)-yMin) / zp*diff)-offsetY;
-					}
-					for(t in tracks){
-						var track = tracks[t];
-						app.renderer.context.strokeStyle = track.strokeStyle;
-						app.renderer.context.lineWidth   = track.lineWidth;
-						app.renderer.context.beginPath();
-						app.renderer.context.moveTo(lon2x(track.points[0][0]), lat2y(track.points[0][1]));
-						for(var i=1; i<track.points.length; i++){
-							app.renderer.context.lineTo(lon2x(track.points[i][0]), lat2y(track.points[i][1]));	
-						}
-						app.renderer.context.stroke();
-						app.renderer.context.closePath();
+				};
+            	app.markers = {	
+            		'Berlin' : {
+						src : "../images/marker.png",
+						lon : 13.409500,
+						lat : 52.522488,
+						offsetX : -11,
+						offsetY : -25
+					},
+					'Moskva' : {
+						src : "../images/marker.png",
+						lon : 37.617633,
+						lat : 55.755786,
+						offsetX : -11,
+						offsetY : -25
+					},
+					'Hong Kong' : {
+						src : "../images/marker.png",
+						lon : 114.10494,
+						lat : 22.381111,
+						offsetX : -11,
+						offsetY : -25
 					}
 				}
-				app.renderer.addLayer({ zindex: 10, callback: drawPath});
             });
 		</script>
 

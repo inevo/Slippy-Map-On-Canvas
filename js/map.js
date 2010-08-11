@@ -22,6 +22,7 @@
             $.app.renderer.canvas.width = viewportWidth;
             $.app.renderer.canvas.height = viewportHeight;
             $.app.renderer.context = $.app.renderer.canvas.getContext("2d");
+			$.app.renderer.sortLayers();
             $.app.renderer.refresh();
             $.app.events.init();
             for (var i = 0; i < $.app.postInitListeners.length; i++) {
@@ -31,6 +32,8 @@
         preInitListeners : [],
         postInitListeners : [],
         markers : markers || {
+        },
+        tracks : {
         },
         tileprovider : tileprovider || function (x, y, z) {
             var rand = function (n) {
@@ -344,16 +347,48 @@
 							}
 						}
 					}
+				},
+				{
+					id: 'path',
+					zindex: 1,
+					callback :
+					function(z, zp, sz, xMin, xMax, yMin, yMax, tilesize, diff){
+						var offsetX = Math.round((diff-1)*(xMax-xMin)/zp/2);
+						var offsetY = Math.round((diff-1)*(yMax-yMin)/zp/2);
+
+					function lon2x(lon){
+				        return Math.round(($.app.pos.lon2pos(lon)-xMin) / zp*diff)-offsetX;
+				    }
+
+					function lat2y(lat){
+                        return Math.round(($.app.pos.lat2pos(lat)-yMin) / zp*diff)-offsetY;
+					}
+						for(t in $.app.tracks){
+							var track = $.app.tracks[t];
+							$.app.renderer.context.strokeStyle = track.strokeStyle;
+							$.app.renderer.context.lineWidth   = track.lineWidth;
+							$.app.renderer.context.beginPath();
+							$.app.renderer.context.moveTo(lon2x(track.points[0][0]), lat2y(track.points[0][1]));
+							for(var i=1; i<track.points.length; i++){
+								$.app.renderer.context.lineTo(lon2x(track.points[i][0]), lat2y(track.points[i][1]));	
+							}
+							$.app.renderer.context.stroke();
+							$.app.renderer.context.closePath();
+						}
+					}
 				}
 			],
 			addLayer : function (layer) {
+				var id = layer.id;
+				$.app.renderer.layers.push(layer);
+				$.app.renderer.sortLayers();
+			},
+			sortLayers : function () {
 				function sortZIndex(a, b) {
 					var x = a.zindex;
 					var y = b.zindex;
 					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
 				}
-				var id = layer.id;
-				$.app.renderer.layers.push(layer);
 				$.app.renderer.layers.sort(sortZIndex);
 			},
             refresh: function () {
