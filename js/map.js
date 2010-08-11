@@ -312,9 +312,7 @@
 									}
 									$.app.renderer.tiles[tileKey].lastDrawn = now();
 								} else {
-										$.app.renderer.context.fillStyle = "#dddddd";
-										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-										var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), zi-1);
+									var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), zi-1);
 									if ($.app.renderer.tiles[tileKeyAbove] && $.app.renderer.tiles[tileKeyAbove].complete){
 										var tileOffsetX = xoff-$.Math.floor((x-$.Math.ceil(x/2)*2)*tilesize*2);
 										var tileOffsetY = yoff-$.Math.floor((y-$.Math.ceil(y/2)*2)*tilesize*2);
