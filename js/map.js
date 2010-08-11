@@ -4,7 +4,7 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *
  *  based on/ inspired by Tim Hutt, http://concentriclivers.com/slippymap.html
- *  added touch + marker support
+ *  added features like touch support, fractional zoom, markers ...
  */
  
 (function ($, div, z, x, y, markers, tileprovider) {
@@ -209,9 +209,9 @@
                     var simulatedEvent = document.createEvent('MouseEvent');
                     simulatedEvent.initMouseEvent(type, true, true, $, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0 /*left*/ , null);
                     first.target.dispatchEvent(simulatedEvent);
+    	            $.app.events.lastTouchEventBeforeLast = $.app.events.lastTouchEvent;
+	                $.app.events.lastTouchEvent = event;
                 }
-                $.app.events.lastTouchEventBeforeLast = $.app.events.lastTouchEvent;
-                $.app.events.lastTouchEvent = event;
                 if (event.preventDefault) {
                     event.preventDefault();
                 }
@@ -426,14 +426,14 @@
                 var now = function(){
                     return (new $.Date()).getTime();
                 }
-                var refreshBeforeFPS = 1000/$.app.renderer.refreshFPS - (now() - $.app.renderer.refreshLastStart);
+                var refreshBeforeFPS = 1000/$.app.renderer.refreshFPS - 
+                	(now() - $.app.renderer.refreshLastStart);
                 if(refreshBeforeFPS > 0){
 					/* too early - postpone refresh */
 					setTimeout($.app.renderer.refresh, refreshBeforeFPS);
 					return;
                 }
 				$.app.renderer.refreshLastStart = now();
-                /* private/ nested functions */
                 var refreshId = ++$.app.renderer.refreshCounter;
                 var z = $.app.pos.z;
                 var zf = $.app.useFractionalZoom?(1+z-parseInt(z)):1;
@@ -449,9 +449,6 @@
                 var yMax = Math.ceil($.app.pos.y + h / 2);
 				var offsetX = Math.round((zf-1)*(xMax-xMin)/zp/2);
 				var offsetY = Math.round((zf-1)*(yMax-yMin)/zp/2);
-//				$.app.renderer.context.fillStyle = "#dddddd";
-//				$.app.renderer.context.fillRect(0, 0, $.app.renderer.canvas.width, $.app.renderer.canvas.height);
-
 				for (l in $.app.renderer.layers) {
 					if($.app.renderer.layers[l].visible && $.app.renderer.layers[l].update){
 						$.app.renderer.layers[l].callback(refreshId, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY);
@@ -460,7 +457,9 @@
 				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
 					$.app.renderer.refreshListeners[i]();
 				}
-                $.app.renderer.garbage();
+                if(refreshId % 10 === 0){
+                	$.app.renderer.garbage();
+                }
             },
             refreshCounter : 0,
             refreshLastStart : 0,
@@ -468,7 +467,6 @@
             refreshListeners : {},
             /* garbage collector, purges tiles if more than 500 are loaded and tile is more than 100 refresh cycles old */
             garbage: function () {
-                console.log($.app.renderer.tilecount);
             	if($.app.renderer.tilecount>200){
 	                if ($.app.renderer.tiles) {
     	                var remove = [];
