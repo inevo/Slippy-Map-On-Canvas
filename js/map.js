@@ -288,7 +288,7 @@
 					zindex: 0,
 					update : true,
 					visible : true,
-					alpha : 0.5,
+					alpha : 1,
 					callback :
 					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
 						$.app.renderer.context.globalAlpha = alpha;
@@ -309,6 +309,7 @@
 						var tileprovider, tileLayers;
 						var maxTileNumber = $.Math.pow(2,zi)-1;
 						var tileDone = [];
+						var preload = 0;
 						var encodeIndex = function (x, y, z) {
 							return x + "," + y + "," + z;
 						};
@@ -322,27 +323,27 @@
 							$.app.renderer.context.globalAlpha = tileLayers[t].alpha || alpha;
 							$.app.renderer.tiles[t] = $.app.renderer.tiles[t] || {};
 							 tileDone = [];
-						for (var x = $.Math.floor(xMin / sz); x < $.Math.ceil(xMax / sz); ++x) {
+						for (var x = $.Math.floor(xMin / sz)-preload; x < $.Math.ceil(xMax / sz)+preload; ++x) {
 							tileDone[x] = [];
-							for (var y = $.Math.floor(yMin / sz); y < $.Math.ceil(yMax / sz); ++y) {
-								tileDone[x][y] = false;
+							for (var y = $.Math.floor(yMin / sz)-preload; y < $.Math.ceil(yMax / sz)+preload; ++y) {
+								tileDone[tileKey] = false;
 								var xoff = $.Math.round((x * sz - xMin) / zp * zf)-offsetX;
 								var yoff = $.Math.round((y * sz - yMin) / zp * zf)-offsetY;
 								var tileKey = encodeIndex(x, y, zi);
 								if(x>maxTileNumber || y>maxTileNumber || x<0 || y<0){
 									$.app.renderer.context.fillStyle = "#dddddd";
 									$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-									tileDone[x][y] = true;
+									tileDone[tileKey] = true;
 								} else {
 									if ($.app.renderer.tiles[t][tileKey] && $.app.renderer.tiles[t][tileKey].complete) {
 										try {
 											$.app.renderer.context.drawImage($.app.renderer.tiles[t][tileKey], xoff, yoff, tilesize, tilesize);
 											$.app.renderer.tiles[t][tileKey].lastDrawnId = id;
 										} catch (e) {
-//											$.app.renderer.context.fillStyle = "#dddddd";
-//											$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+											$.app.renderer.context.fillStyle = "#dddddd";
+											$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
 										}
-										tileDone[x][y] = true;
+										tileDone[tileKey] = true;
 									} else {
 										var tileAboveX = $.Math.floor(x/2);
 										var tileAboveY = $.Math.floor(y/2);
@@ -350,28 +351,46 @@
 										var tilePartOffsetX = $.Math.ceil(x-tileAboveX*2);
 										var tilePartOffsetY = $.Math.ceil(y-tileAboveY*2);
 										var tileKeyAbove = encodeIndex(tileAboveX, tileAboveY, tileAboveZ);
-										if ($.app.renderer.tiles[t][tileKeyAbove] && $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId){
+										if(preload &&!$.app.renderer.tiles[t][tileKeyAbove]){
+											$.app.renderer.tiles[t][tileKeyAbove] = new Image;
+											$.app.renderer.tiles[t][tileKeyAbove].src = tileprovider(tileAboveX, tileAboveY, tileAboveZ, $.app.renderer.tiles[tileKeyAbove]);
+											$.app.renderer.tiles[t][tileKeyAbove].onload = $.app.renderer.refresh;
+											$.app.renderer.tiles[t][tileKeyAbove].onerror = null										
+										}
+										if (!tileDone[tileKey] && $.app.renderer.tiles[t][tileKeyAbove] && $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId){
 											var tileOffsetX = xoff-tilePartOffsetX*tilesize;
 											var tileOffsetY = yoff-tilePartOffsetY*tilesize;
 											try {
-												$.app.renderer.context.drawImage($.app.renderer.tiles[t][tileKeyAbove], tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
+/*												$.app.renderer.context.drawImage(
+													$.app.renderer.tiles[t][tileKeyAbove], 
+													tileOffsetX, tileOffsetY,
+													$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize)
+												);	
+*/
+												$.app.renderer.context.drawImage(
+													$.app.renderer.tiles[t][tileKeyAbove], 
+													tilePartOffsetX*127,
+													tilePartOffsetY*127,
+													127,
+													127,
+													tileOffsetX+tilesize*tilePartOffsetX, 
+													tileOffsetY+tilesize*tilePartOffsetY, 
+													tilesize, 
+													tilesize);	
+
 												$.app.renderer.tiles[t][tileKeyAbove].lastDrawnId = id;
 											} catch(e){
+												console.log(e);
 												$.app.renderer.context.fillStyle = "#dddddd";
 												$.app.renderer.context.fillRect(tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
 											}
-											tileDone[tileAboveX*2] = tileDone[tileAboveX*2] || []
-											tileDone[tileAboveX*2][tileAboveY*2] = true;
-											tileDone[tileAboveX*2][tileAboveY*2+1] = true;
-											tileDone[tileAboveX*2+1] = tileDone[tileAboveX*2+1] || []
-											tileDone[tileAboveX*2+1][tileAboveY*2+1] = true;
-											tileDone[tileAboveX*2+1][tileAboveY*2+1] = true;
+											tileDone[tileKey] = true;
 	
 										} else {
-											if(!tileDone[x][y]){
+											if(!tileDone[tileKey]){
 												$.app.renderer.context.fillStyle = "#dddddd";
 												$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-												tileDone[x][y] = true;
+												tileDone[tileKey] = true;
 											}
 										}
 										if (!$.app.renderer.tiles[t][tileKey]) {
@@ -380,7 +399,7 @@
 											$.app.renderer.tilecount++;
 											$.app.renderer.tiles[t][tileKey].src = tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
 											$.app.renderer.tiles[t][tileKey].onload = $.app.renderer.refresh;
-											$.app.renderer.tiles[t][tileKey].onerror = $.app.renderer.refresh;											
+											$.app.renderer.tiles[t][tileKey].onerror = null
 										}
 									}
 								}
@@ -433,7 +452,7 @@
 						return false;
 					},
 					visible : true,
-					alpha : 0.5,
+					alpha : 0.8,
 					callback :
 					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
 						$.app.renderer.context.globalAlpha = alpha;
