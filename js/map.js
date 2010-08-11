@@ -15,8 +15,8 @@
             for (var i = 0; i < $.app.preInitListeners.length; i++) {
 				$.app.preInitListeners[i]();
 			}
-            $.app.pos.x = $.app.pos.lon2pos(x);
-            $.app.pos.y = $.app.pos.lat2pos(y);
+            $.app.pos.x = $.app.pos.lon2posX(x);
+            $.app.pos.y = $.app.pos.lat2posY(y);
             $.app.pos.z = z;
             $.app.renderer.canvas = $.document.getElementById(div);
             $.app.renderer.canvas.width = viewportWidth;
@@ -71,8 +71,8 @@
             }
         },
         recenter: function(lon,lat,zoom){
-            $.app.pos.x = $.app.pos.lon2pos(lon);
-            $.app.pos.y = $.app.pos.lat2pos(lat);
+            $.app.pos.x = $.app.pos.lon2posX(lon);
+            $.app.pos.y = $.app.pos.lat2posY(lat);
             if(zoom>=0) $.app.pos.z = zoom;
             $.app.renderer.refresh();        
         },
@@ -260,19 +260,32 @@
             maxZ: 18,
             lastRenderTime: 0,
             tiles: {},
+            tilecount: 0,
             tilesize: 256,
+			addLayer : function (layer) {
+				var id = layer.id;
+				$.app.renderer.layers.push(layer);
+				$.app.renderer.sortLayers();
+			},
+			sortLayers : function () {
+				function sortZIndex(a, b) {
+					var x = a.zindex;
+					var y = b.zindex;
+					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+				}
+				$.app.renderer.layers.sort(sortZIndex);
+			},
             layers :  [
 				{
 					/* repaint canvas, load missing images */
 					id: 'tiles',
 					zindex: 0,
+					update : true,
+					visible : true,
 					callback :
-					function(z,zp,sz,xMin,xMax,yMin,yMax, tilesize, zf){
+					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
 						$.app.renderer.context.fillStyle = "#dddddd";
-			
-					    var offsetX = $.Math.floor((zf-1)*(xMax-xMin)/zp/2);
-					    var offsetY = $.Math.floor((zf-1)*(yMax-yMin)/zp/2);
-						var maxTileNumber = $.Math.pow(2,z)-1;
+						var maxTileNumber = $.Math.pow(2,zi)-1;
 						var encodeIndex = function (x, y, z) {
 							return x + "," + y + "," + z;
 						};
@@ -284,8 +297,7 @@
 								var xoff = $.Math.round((x * sz - xMin) / zp * zf)-offsetX;
 								var yoff = $.Math.round((y * sz - yMin) / zp * zf)-offsetY;
 								
-								var tileKey = encodeIndex(x, y, z);
-								var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), z-1);
+								var tileKey = encodeIndex(x, y, zi);
 								if(x>maxTileNumber || y>maxTileNumber || x<0 || y<0){
 									$.app.renderer.context.fillStyle = "#dddddd";
 									$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
@@ -300,17 +312,22 @@
 									}
 									$.app.renderer.tiles[tileKey].lastDrawn = now();
 								} else {
+										$.app.renderer.context.fillStyle = "#dddddd";
+										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+										var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), zi-1);
 									if ($.app.renderer.tiles[tileKeyAbove] && $.app.renderer.tiles[tileKeyAbove].complete){
 										var tileOffsetX = xoff-$.Math.floor((x-$.Math.ceil(x/2)*2)*tilesize*2);
 										var tileOffsetY = yoff-$.Math.floor((y-$.Math.ceil(y/2)*2)*tilesize*2);
 										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKeyAbove], tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
+										$.app.renderer.tiles[tileKeyAbove].lastDrawn = now();
 									} else {
 										$.app.renderer.context.fillStyle = "#dddddd";
 										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
 									}
 									if (!$.app.renderer.tiles[tileKey]) {
 										$.app.renderer.tiles[tileKey] = new Image();
-										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, z, $.app.renderer.tiles[tileKey]);
+										$.app.renderer.tilecount++;
+										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
 										$.app.renderer.tiles[tileKey].onload = function(){
 											$.app.renderer.refresh();
 										}
@@ -324,14 +341,19 @@
 				{
 					id: 'marker',
 					zindex: 99,
+					update : function(){
+						if($.app.markers && $.app.markers.length){
+							return true;
+						}
+						return false;
+					},
+					visible : true,
 					callback :
-					function(z,zp,sz,xMin,xMax,yMin,yMax, tilesize, zf){
-					    var offsetX = $.Math.round((zf-1)*(xMax-xMin)/zp/2);
-					    var offsetY = $.Math.round((zf-1)*(yMax-yMin)/zp/2);
+					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
 						for(var marker in $.app.markers){
 							if($.app.markers[marker].img && $.app.markers[marker].img.complete){
-								x = $.Math.round(($.app.pos.lon2pos($.app.markers[marker].lon)-xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
-								y = $.Math.round(($.app.pos.lat2pos($.app.markers[marker].lat)-yMin) / zp * zf) + $.app.markers[marker].offsetY - offsetY;
+								x = $.Math.round(($.app.pos.lon2posX($.app.markers[marker].lon)-xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
+								y = $.Math.round(($.app.pos.lat2posY($.app.markers[marker].lat)-yMin) / zp * zf) + $.app.markers[marker].offsetY - offsetY;
 								if(x>-50 && x<$.app.renderer.canvas.width+50 && y>-50 && y<$.app.renderer.canvas.height+50){
 									try {
 										$.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
@@ -351,19 +373,23 @@
 				{
 					id: 'path',
 					zindex: 1,
+					update : function(){
+						if($.app.tracks && $.app.tracks.length){
+							return true;
+						}
+						return false;
+					},
+					visible : true,
 					callback :
-					function(z, zp, sz, xMin, xMax, yMin, yMax, tilesize, diff){
-						var offsetX = Math.round((diff-1)*(xMax-xMin)/zp/2);
-						var offsetY = Math.round((diff-1)*(yMax-yMin)/zp/2);
-
-					function lon2x(lon){
-				        return Math.round(($.app.pos.lon2pos(lon)-xMin) / zp*diff)-offsetX;
-				    }
-
-					function lat2y(lat){
-                        return Math.round(($.app.pos.lat2pos(lat)-yMin) / zp*diff)-offsetY;
-					}
-						for(t in $.app.tracks){
+					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
+						function lon2x(lon){
+					        return Math.round(($.app.pos.lon2posX(lon)-xMin) / zp*zf)-offsetX;
+					    }
+	
+						function lat2y(lat){
+	                        return Math.round(($.app.pos.lat2posY(lat)-yMin) / zp*zf)-offsetY;
+						}
+						for(var t in $.app.tracks){
 							var track = $.app.tracks[t];
 							$.app.renderer.context.strokeStyle = track.strokeStyle;
 							$.app.renderer.context.lineWidth   = track.lineWidth;
@@ -378,19 +404,6 @@
 					}
 				}
 			],
-			addLayer : function (layer) {
-				var id = layer.id;
-				$.app.renderer.layers.push(layer);
-				$.app.renderer.sortLayers();
-			},
-			sortLayers : function () {
-				function sortZIndex(a, b) {
-					var x = a.zindex;
-					var y = b.zindex;
-					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-				}
-				$.app.renderer.layers.sort(sortZIndex);
-			},
             refresh: function () {
                 /* private/ nested functions */
                 var now = function () {
@@ -398,18 +411,23 @@
                 };
                 var z = $.app.pos.z;
                 var zf = $.app.useFractionalZoom?(1+z-parseInt(z)):1;
-                z = parseInt(z);
-                var zp = $.Math.pow(2, $.app.renderer.maxZ - z);
+                var zi = parseInt(z);
+                var zp = $.Math.pow(2, $.app.renderer.maxZ - zi);
                 var w = $.app.renderer.canvas.width * zp;
                 var h = $.app.renderer.canvas.height * zp;
                 var sz = $.app.renderer.tilesize * zp;
                 var tilesize = $.Math.ceil($.app.renderer.tilesize*zf);
-                var xMin = $.app.pos.x - w / 2;
-                var yMin = $.app.pos.y - h / 2;
-                var xMax = $.app.pos.x + w / 2;
-                var yMax = $.app.pos.y + h / 2;
+                var xMin = Math.floor($.app.pos.x - w / 2);
+                var yMin = Math.floor($.app.pos.y - h / 2);
+                var xMax = Math.ceil($.app.pos.x + w / 2);
+                var yMax = Math.ceil($.app.pos.y + h / 2);
+				var offsetX = Math.round((zf-1)*(xMax-xMin)/zp/2);
+				var offsetY = Math.round((zf-1)*(yMax-yMin)/zp/2);
+
 				for (l in $.app.renderer.layers) {
-					$.app.renderer.layers[l].callback(z,zp,sz,xMin,xMax,yMin,yMax,tilesize, zf);
+					if($.app.renderer.layers[l].visible && $.app.renderer.layers[l].update){
+						$.app.renderer.layers[l].callback(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY);
+					}
 				}
 				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
 					$.app.renderer.refreshListeners[i]();
@@ -420,17 +438,20 @@
             refreshListeners : {},
             /* garbage collector */
             garbage: function () {
-                if ($.app.renderer.tiles) {
-                    var remove = [];
-                    for (var key in $.app.renderer.tiles) {
-                        if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].lastDrawn < ($.app.renderer.lastRenderTime - 60000)) {
-                            remove.push(key);
-                        }
-                    }
-                    for (i = 0; i < remove.length; i++) {
-                        delete $.app.renderer.tiles[remove[i]];
-                    }
-                }
+            	if($.app.renderer.tilecount>100){
+	                if ($.app.renderer.tiles) {
+    	                var remove = [];
+        	            for (var key in $.app.renderer.tiles) {
+            	            if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].lastDrawn < ($.app.renderer.lastRenderTime - 10000)) {
+	                            remove.push(key);
+    	                    }
+        	            }
+	                    for (var i = 0; i < remove.length; i++) {
+    	                    delete $.app.renderer.tiles[remove[i]];
+        	            }
+	                    $.app.renderer.tilecount -= i;
+    	            }
+    	        }
             }
         },
         /* positioning, conversion between pixel + lon/lat */
@@ -438,10 +459,10 @@
             getLonLat: function () {
                 return [$.app.pos.tile2lon($.app.pos.x / $.app.renderer.tilesize, $.app.renderer.maxZ), $.app.pos.tile2lat($.app.pos.y / $.app.renderer.tilesize, $.app.renderer.maxZ), $.app.pos.z];
             },
-            lat2pos: function (lat) {
+            lat2posY: function (lat) {
                 return $.Math.pow(2, $.app.renderer.maxZ) * $.app.renderer.tilesize * (1 - $.Math.log($.Math.tan(lat * $.Math.PI / 180) + 1 / $.Math.cos(lat * $.Math.PI / 180)) / $.Math.PI) / 2;
             },
-            lon2pos: function (lon) {
+            lon2posX: function (lon) {
                 return $.Math.pow(2, $.app.renderer.maxZ) * $.app.renderer.tilesize * (lon + 180) / 360;
             },
             tile2lon: function (x, z) {
