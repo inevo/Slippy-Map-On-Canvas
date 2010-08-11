@@ -283,17 +283,16 @@
 					update : true,
 					visible : true,
 					callback :
-					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
-						$.app.renderer.context.fillStyle = "#dddddd";
+					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
 						var maxTileNumber = $.Math.pow(2,zi)-1;
+						var tileDone = [];
 						var encodeIndex = function (x, y, z) {
 							return x + "," + y + "," + z;
 						};
-						var now = function () {
-							return (new $.Date()).getTime();
-						};
 						for (var x = $.Math.floor(xMin / sz); x < $.Math.ceil(xMax / sz); ++x) {
+							tileDone[x] = [];
 							for (var y = $.Math.floor(yMin / sz); y < $.Math.ceil(yMax / sz); ++y) {
+								tileDone[x][y] = false;
 								var xoff = $.Math.round((x * sz - xMin) / zp * zf)-offsetX;
 								var yoff = $.Math.round((y * sz - yMin) / zp * zf)-offsetY;
 								
@@ -301,43 +300,64 @@
 								if(x>maxTileNumber || y>maxTileNumber || x<0 || y<0){
 									$.app.renderer.context.fillStyle = "#dddddd";
 									$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-	
+									tileDone[x][y] = true;
 								} else {
-								if ($.app.renderer.tiles[tileKey] && $.app.renderer.tiles[tileKey].complete) {
-									try {
-										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff, tilesize, tilesize);
-									} catch (e) {
-										$.app.renderer.context.fillStyle = "#dddddd";
-										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-									}
-									$.app.renderer.tiles[tileKey].lastDrawn = now();
-								} else {
-									var tileKeyAbove = encodeIndex($.Math.floor(x/2), $.Math.floor(y/2), zi-1);
-									if ($.app.renderer.tiles[tileKeyAbove] && $.app.renderer.tiles[tileKeyAbove].complete){
-										var tileOffsetX = xoff-$.Math.floor((x-$.Math.ceil(x/2)*2)*tilesize*2);
-										var tileOffsetY = yoff-$.Math.floor((y-$.Math.ceil(y/2)*2)*tilesize*2);
-										$.app.renderer.context.drawImage($.app.renderer.tiles[tileKeyAbove], tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
-										$.app.renderer.tiles[tileKeyAbove].lastDrawn = now();
+									if ($.app.renderer.tiles[tileKey] && $.app.renderer.tiles[tileKey].complete) {
+										try {
+											$.app.renderer.context.drawImage($.app.renderer.tiles[tileKey], xoff, yoff, tilesize, tilesize);
+											$.app.renderer.tiles[tileKey].lastDrawnId = id;
+										} catch (e) {
+											$.app.renderer.context.fillStyle = "#00ff00";
+											$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+										}
+										tileDone[x][y] = true;
 									} else {
-										$.app.renderer.context.fillStyle = "#dddddd";
-										$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-									}
-									if (!$.app.renderer.tiles[tileKey]) {
-										$.app.renderer.tiles[tileKey] = new Image();
-										$.app.renderer.tilecount++;
-										$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
-										$.app.renderer.tiles[tileKey].onload = function(){
-											$.app.renderer.refresh();
+										var tileAboveX = $.Math.floor(x/2);
+										var tileAboveY = $.Math.floor(y/2);
+										var tileAboveZ = zi-1;
+										var tilePartOffsetX = $.Math.ceil(x-tileAboveX*2);
+										var tilePartOffsetY = $.Math.ceil(y-tileAboveY*2);
+										var tileKeyAbove = encodeIndex(tileAboveX, tileAboveY, tileAboveZ);
+										if ($.app.renderer.tiles[tileKeyAbove] && $.app.renderer.tiles[tileKeyAbove].lastDrawnId){
+											var tileOffsetX = xoff-tilePartOffsetX*tilesize;
+											var tileOffsetY = yoff-tilePartOffsetY*tilesize;
+											try {
+												$.app.renderer.context.drawImage($.app.renderer.tiles[tileKeyAbove], tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
+												$.app.renderer.tiles[tileKeyAbove].lastDrawnId = id;
+											} catch(e){
+												$.app.renderer.context.fillStyle = "#dddddd";
+												$.app.renderer.context.fillRect(tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
+											}
+											tileDone[tileAboveX*2] = tileDone[tileAboveX*2] || []
+											tileDone[tileAboveX*2][tileAboveY*2] = true;
+											tileDone[tileAboveX*2][tileAboveY*2+1] = true;
+											tileDone[tileAboveX*2+1] = tileDone[tileAboveX*2+1] || []
+											tileDone[tileAboveX*2+1][tileAboveY*2+1] = true;
+											tileDone[tileAboveX*2+1][tileAboveY*2+1] = true;
+	
+										} else {
+											if(!tileDone[x][y]){
+												$.app.renderer.context.fillStyle = "#dddddd";
+												$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+												tileDone[x][y] = true;
+											}
+										}
+										if (!$.app.renderer.tiles[tileKey]) {
+											$.app.renderer.tiles[tileKey] = new Image();
+											$.app.renderer.tiles[tileKey].lastDrawnId = 0;
+											$.app.renderer.tilecount++;
+											$.app.renderer.tiles[tileKey].src = $.app.tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
+											$.app.renderer.tiles[tileKey].onload = $.app.renderer.refresh;
+											$.app.renderer.tiles[tileKey].onerror = $.app.renderer.refresh;											
 										}
 									}
-								}
 								}
 							}
 						}
 					}   
 				},
 				{
-					id: 'marker',
+					id: 'markers',
 					zindex: 99,
 					update : function(){
 						if($.app.markers && $.app.markers.length){
@@ -347,7 +367,7 @@
 					},
 					visible : true,
 					callback :
-					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
+					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
 						for(var marker in $.app.markers){
 							if($.app.markers[marker].img && $.app.markers[marker].img.complete){
 								x = $.Math.round(($.app.pos.lon2posX($.app.markers[marker].lon)-xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
@@ -369,7 +389,7 @@
 					}
 				},
 				{
-					id: 'path',
+					id: 'tracks',
 					zindex: 1,
 					update : function(){
 						if($.app.tracks && $.app.tracks.length){
@@ -379,7 +399,7 @@
 					},
 					visible : true,
 					callback :
-					function(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
+					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY){
 						function lon2x(lon){
 					        return Math.round(($.app.pos.lon2posX(lon)-xMin) / zp*zf)-offsetX;
 					    }
@@ -403,10 +423,18 @@
 				}
 			],
             refresh: function () {
-                /* private/ nested functions */
-                var now = function () {
+                var now = function(){
                     return (new $.Date()).getTime();
-                };
+                }
+                var refreshBeforeFPS = 1000/$.app.renderer.refreshFPS - (now() - $.app.renderer.refreshLastStart);
+                if(refreshBeforeFPS > 0){
+					/* too early - postpone refresh */
+					setTimeout($.app.renderer.refresh, refreshBeforeFPS);
+					return;
+                }
+				$.app.renderer.refreshLastStart = now();
+                /* private/ nested functions */
+                var refreshId = ++$.app.renderer.refreshCounter;
                 var z = $.app.pos.z;
                 var zf = $.app.useFractionalZoom?(1+z-parseInt(z)):1;
                 var zi = parseInt(z);
@@ -421,26 +449,32 @@
                 var yMax = Math.ceil($.app.pos.y + h / 2);
 				var offsetX = Math.round((zf-1)*(xMax-xMin)/zp/2);
 				var offsetY = Math.round((zf-1)*(yMax-yMin)/zp/2);
+//				$.app.renderer.context.fillStyle = "#dddddd";
+//				$.app.renderer.context.fillRect(0, 0, $.app.renderer.canvas.width, $.app.renderer.canvas.height);
 
 				for (l in $.app.renderer.layers) {
 					if($.app.renderer.layers[l].visible && $.app.renderer.layers[l].update){
-						$.app.renderer.layers[l].callback(zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY);
+						$.app.renderer.layers[l].callback(refreshId, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY);
 					}
 				}
 				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
 					$.app.renderer.refreshListeners[i]();
 				}
                 $.app.renderer.garbage();
-                $.app.renderer.lastRenderTime = now();
             },
+            refreshCounter : 0,
+            refreshLastStart : 0,
+            refreshFPS : 50,
             refreshListeners : {},
-            /* garbage collector */
+            /* garbage collector, purges tiles if more than 100 are loaded and tile is more than 10 refresh cycles old */
             garbage: function () {
             	if($.app.renderer.tilecount>100){
 	                if ($.app.renderer.tiles) {
     	                var remove = [];
         	            for (var key in $.app.renderer.tiles) {
-            	            if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].lastDrawn < ($.app.renderer.lastRenderTime - 10000)) {
+            	            if ($.app.renderer.tiles[key] && 
+	            	            $.app.renderer.tiles[key].complete &&
+								$.app.renderer.tiles[key].lastDrawnId < ($.app.renderer.refreshCounter - 10)) {
 	                            remove.push(key);
     	                    }
         	            }
