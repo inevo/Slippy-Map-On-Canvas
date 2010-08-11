@@ -6,15 +6,15 @@
  *  based on/ inspired by Tim Hutt, http://concentriclivers.com/slippymap.html
  *  added features like touch support, fractional zoom, markers ...
  */
- 
+
 (function ($, div, z, x, y, markers, tileprovider) {
     $.app = {
         init: function () {
             var viewportWidth = $.innerWidth,
                 viewportHeight = $.innerHeight;
             for (var i = 0; i < $.app.preInitListeners.length; i++) {
-				$.app.preInitListeners[i]();
-			}
+                $.app.preInitListeners[i]();
+            }
             $.app.pos.x = $.app.pos.lon2posX(x);
             $.app.pos.y = $.app.pos.lat2posY(y);
             $.app.pos.z = z;
@@ -22,36 +22,35 @@
             $.app.renderer.canvas.width = viewportWidth;
             $.app.renderer.canvas.height = viewportHeight;
             $.app.renderer.context = $.app.renderer.canvas.getContext("2d");
-			$.app.renderer.sortLayers();
+            $.app.renderer.sortLayers();
             $.app.renderer.refresh();
             $.app.events.init();
             for (var i = 0; i < $.app.postInitListeners.length; i++) {
-				$.app.postInitListeners[i]();
-			}
+                $.app.postInitListeners[i]();
+            }
         },
-        preInitListeners : [],
-        postInitListeners : [],
-        markers : markers || {
-        },
-        tracks : {
-        },
-        tileprovider : tileprovider || function (x, y, z) {
+        preInitListeners: [],
+        postInitListeners: [],
+        markers: markers || {},
+        tracks: {},
+        tileprovider: tileprovider ||
+        function (x, y, z) {
             var rand = function (n) {
-            	return $.Math.floor($.Math.random() * n);
+                return $.Math.floor($.Math.random() * n);
             };
             var sub = ["a", "b", "c"];
             var url = "http://" + sub[rand(3)] + ".tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png";
             return url;
         },
-        useFractionalZoom : true,
+        useFractionalZoom: true,
         zoomIn: function (step, round) {
             if ($.app.pos.z < $.app.renderer.maxZ) {
                 $.app.pos.z += step || 1;
-                if(round !== false) {
-                	$.app.pos.z = $.Math.round($.app.pos.z);
+                if (round !== false) {
+                    $.app.pos.z = $.Math.round($.app.pos.z);
                 }
-                if($.app.pos.z > $.app.renderer.maxZ) {
-                	$.app.pos.z = $.app.renderer.maxZ;
+                if ($.app.pos.z > $.app.renderer.maxZ) {
+                    $.app.pos.z = $.app.renderer.maxZ;
                 }
                 $.app.renderer.refresh();
                 $.app.zoomed();
@@ -60,35 +59,35 @@
         zoomOut: function (step, round) {
             if ($.app.pos.z > 0) {
                 $.app.pos.z -= step || 1;
-                if(round !== false) {
-                	$.app.pos.z = $.Math.round($.app.pos.z);
+                if (round !== false) {
+                    $.app.pos.z = $.Math.round($.app.pos.z);
                 }
-                if($.app.pos.z<0) {
-                	$.app.pos.z = 0;
+                if ($.app.pos.z < 0) {
+                    $.app.pos.z = 0;
                 }
                 $.app.renderer.refresh();
                 $.app.zoomed();
             }
         },
-        recenter: function(lon,lat,zoom){
+        recenter: function (lon, lat, zoom) {
             $.app.pos.x = $.app.pos.lon2posX(lon);
             $.app.pos.y = $.app.pos.lat2posY(lat);
-            if(zoom>=0) $.app.pos.z = zoom;
-            $.app.renderer.refresh();        
+            if (zoom >= 0) $.app.pos.z = zoom;
+            $.app.renderer.refresh();
         },
         /* keep track of zoom + pans */
-        zoomed: function() {
-			for (var i = 0; i < $.app.zoomedListeners.length; i++) {
-				$.app.zoomedListeners[i]();
-			}
+        zoomed: function () {
+            for (var i = 0; i < $.app.zoomedListeners.length; i++) {
+                $.app.zoomedListeners[i]();
+            }
         },
-        zoomedListeners : [],
-        moved: function() {
-			for (var i = 0; i < $.app.movedListeners.length; i++) {
-				$.app.movedListeners[i]();
-			}
+        zoomedListeners: [],
+        moved: function () {
+            for (var i = 0; i < $.app.movedListeners.length; i++) {
+                $.app.movedListeners[i]();
+            }
         },
-        movedListeners : [],
+        movedListeners: [],
         resized: function () {
             var viewportWidth = $.innerWidth,
                 viewportHeight = $.innerHeight;
@@ -153,11 +152,11 @@
                     delta = -event.detail / 3;
                 }
                 if (delta > 0) {
-                    $.app.zoomIn(delta/100, false);
+                    $.app.zoomIn(delta / 100, false);
                     $.app.zoomed();
 
                 } else if (delta < 0) {
-                    $.app.zoomOut(-delta/100, false);
+                    $.app.zoomOut(-delta / 100, false);
                     $.app.zoomed();
                 }
             },
@@ -177,16 +176,16 @@
             },
             /* maps touch events to mouse events */
             touchHandler: function (event) {
-                var now = function(){
+                var now = function () {
                     return (new $.Date()).getTime();
                 }
                 var touches;
-                if(event.type !== 'touchend'){
-                	touches = event.targetTouches;
+                if (event.type !== 'touchend') {
+                    touches = event.targetTouches;
                 } else {
-                	touches = event.changedTouches;                
+                    touches = event.changedTouches;
                 }
-                var   type, first = touches[0];
+                var type, first = touches[0];
                 if (touches.length === 1) {
                     switch (event.type) {
                     case 'touchstart':
@@ -202,13 +201,7 @@
                     default:
                         return;
                     }
-                    if ($.app.events.lastTouchEventBeforeLast && 
-                        event.type == 'touchend' && 
-                        $.app.events.lastTouchEvent.type === 'touchstart' &&
-                        $.app.events.lastTouchEventBeforeLast.type == 'touchend' && 
-                        event.x == $.app.events.lastTouchEventBeforeLast.x && 
-                        event.y == $.app.events.lastTouchEventBeforeLast.y && 
-                        now() - $.app.events.lastTouchEventBeforeLast.timeStamp < 500) {
+                    if ($.app.events.lastTouchEventBeforeLast && event.type == 'touchend' && $.app.events.lastTouchEvent.type === 'touchstart' && $.app.events.lastTouchEventBeforeLast.type == 'touchend' && event.x == $.app.events.lastTouchEventBeforeLast.x && event.y == $.app.events.lastTouchEventBeforeLast.y && now() - $.app.events.lastTouchEventBeforeLast.timeStamp < 500) {
                         $.app.events.lastTouchEventBeforeLast = false;
                         $.app.events.lastTouchEvent.timeStamp = now();
                         type = 'dblclick';
@@ -216,8 +209,8 @@
                     var simulatedEvent = document.createEvent('MouseEvent');
                     simulatedEvent.initMouseEvent(type, true, true, $, 1, first.screenX, first.screenY, first.clientX, first.clientY, false, false, false, false, 0 /*left*/ , null);
                     first.target.dispatchEvent(simulatedEvent);
-    	            $.app.events.lastTouchEventBeforeLast = $.app.events.lastTouchEvent;
-	                $.app.events.lastTouchEvent = event;
+                    $.app.events.lastTouchEventBeforeLast = $.app.events.lastTouchEvent;
+                    $.app.events.lastTouchEvent = event;
                 }
                 if (event.preventDefault) {
                     event.preventDefault();
@@ -227,11 +220,11 @@
             gestureHandler: function (event) {
                 if (event.scale) {
                     if (event.scale > 1) {
-                        $.app.zoomIn((event.scale-1)/10, false);
+                        $.app.zoomIn((event.scale - 1) / 10, false);
                         return true;
                     }
                     if (event.scale < 1) {
-                        $.app.zoomOut(event.scale/10, false);
+                        $.app.zoomOut(event.scale / 10, false);
                         return true;
                     }
                 }
@@ -268,280 +261,263 @@
             tiles: [],
             tilecount: 0,
             tilesize: 256,
-			addLayer : function (layer) {
-				var id = layer.id;
-				$.app.renderer.layers.push(layer);
-				$.app.renderer.sortLayers();
-			},
-			sortLayers : function () {
-				function sortZIndex(a, b) {
-					var x = a.zindex;
-					var y = b.zindex;
-					return ((x < y) ? -1 : ((x > y) ? 1 : 0));
-				}
-				$.app.renderer.layers.sort(sortZIndex);
-			},
-            layers :  [
-            	{
-					/* repaint canvas, load missing images */
-					id: 'tiles',
-					zindex: 0,
-					update : true,
-					visible : true,
-					alpha : 1,
-					callback :
-					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
-						$.app.renderer.context.globalAlpha = alpha;
-						$.app.renderer.context.fillStyle = "#000000";
-						$.app.renderer.context.fillRect(0, 0, $.app.renderer.canvas.width, $.app.renderer.canvas.height);
-					}
-            	
-            	},
-				{
-					/* repaint canvas, load missing images */
-					id: 'tiles',
-					zindex: 1,
-					update : true,
-					visible : true,
-					alpha : 1,
-					callback :
-					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
-						var tileprovider, tileLayers;
-						var maxTileNumber = $.Math.pow(2,zi)-1;
-						var tileDone = [];
-						var preload = 0;
-						var encodeIndex = function (x, y, z) {
-							return x + "," + y + "," + z;
-						};
-						if(typeof $.app.tileprovider === 'function'){
-							tileLayers = {base : {url: $.app.tileprovider}};
-						} else {
-							tileLayers = $.app.tileprovider
-						}
-						for(var t in tileLayers){
-							tileprovider = tileLayers[t].url;
-							$.app.renderer.context.globalAlpha = tileLayers[t].alpha || alpha;
-							$.app.renderer.tiles[t] = $.app.renderer.tiles[t] || {};
-							 tileDone = [];
-						for (var x = $.Math.floor(xMin / sz)-preload; x < $.Math.ceil(xMax / sz)+preload; ++x) {
-							tileDone[x] = [];
-							for (var y = $.Math.floor(yMin / sz)-preload; y < $.Math.ceil(yMax / sz)+preload; ++y) {
-								tileDone[tileKey] = false;
-								var xoff = $.Math.round((x * sz - xMin) / zp * zf)-offsetX;
-								var yoff = $.Math.round((y * sz - yMin) / zp * zf)-offsetY;
-								var tileKey = encodeIndex(x, y, zi);
-								if(x>maxTileNumber || y>maxTileNumber || x<0 || y<0){
-									$.app.renderer.context.fillStyle = "#dddddd";
-									$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-									tileDone[tileKey] = true;
-								} else {
-									if ($.app.renderer.tiles[t][tileKey] && $.app.renderer.tiles[t][tileKey].complete) {
-										try {
-											$.app.renderer.context.drawImage($.app.renderer.tiles[t][tileKey], xoff, yoff, tilesize, tilesize);
-											$.app.renderer.tiles[t][tileKey].lastDrawnId = id;
-										} catch (e) {
-											$.app.renderer.context.fillStyle = "#dddddd";
-											$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-										}
-										tileDone[tileKey] = true;
-									} else {
-										var tileAboveX = $.Math.floor(x/2);
-										var tileAboveY = $.Math.floor(y/2);
-										var tileAboveZ = zi-1;
-										var tilePartOffsetX = $.Math.ceil(x-tileAboveX*2);
-										var tilePartOffsetY = $.Math.ceil(y-tileAboveY*2);
-										var tileKeyAbove = encodeIndex(tileAboveX, tileAboveY, tileAboveZ);
-										if(preload &&!$.app.renderer.tiles[t][tileKeyAbove]){
-											$.app.renderer.tiles[t][tileKeyAbove] = new Image;
-											$.app.renderer.tiles[t][tileKeyAbove].src = tileprovider(tileAboveX, tileAboveY, tileAboveZ, $.app.renderer.tiles[tileKeyAbove]);
-											$.app.renderer.tiles[t][tileKeyAbove].onload = $.app.renderer.refresh;
-											$.app.renderer.tiles[t][tileKeyAbove].onerror = null										
-										}
-										if (!tileDone[tileKey] && $.app.renderer.tiles[t][tileKeyAbove] && $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId){
-											var tileOffsetX = xoff-tilePartOffsetX*tilesize;
-											var tileOffsetY = yoff-tilePartOffsetY*tilesize;
-											try {
-/*												$.app.renderer.context.drawImage(
-													$.app.renderer.tiles[t][tileKeyAbove], 
-													tileOffsetX, tileOffsetY,
-													$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize)
-												);	
-*/
-												$.app.renderer.context.drawImage(
-													$.app.renderer.tiles[t][tileKeyAbove], 
-													tilePartOffsetX*127,
-													tilePartOffsetY*127,
-													127,
-													127,
-													tileOffsetX+tilesize*tilePartOffsetX, 
-													tileOffsetY+tilesize*tilePartOffsetY, 
-													tilesize, 
-													tilesize);	
+            addLayer: function (layer) {
+                var id = layer.id;
+                $.app.renderer.layers.push(layer);
+                $.app.renderer.sortLayers();
+            },
+            sortLayers: function () {
+                function sortZIndex(a, b) {
+                    var x = a.zindex;
+                    var y = b.zindex;
+                    return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+                }
+                $.app.renderer.layers.sort(sortZIndex);
+            },
+            layers: [{ /* repaint canvas, load missing images */
+                id: 'tiles',
+                zindex: 0,
+                update: true,
+                visible: true,
+                alpha: 1,
+                callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
+                    $.app.renderer.context.globalAlpha = alpha;
+                    $.app.renderer.context.fillStyle = "#000000";
+                    $.app.renderer.context.fillRect(0, 0, $.app.renderer.canvas.width, $.app.renderer.canvas.height);
+                }
 
-												$.app.renderer.tiles[t][tileKeyAbove].lastDrawnId = id;
-											} catch(e){
-												console.log(e);
-												$.app.renderer.context.fillStyle = "#dddddd";
-												$.app.renderer.context.fillRect(tileOffsetX, tileOffsetY,$.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize));	
-											}
-											tileDone[tileKey] = true;
-	
-										} else {
-											if(!tileDone[tileKey]){
-												$.app.renderer.context.fillStyle = "#dddddd";
-												$.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
-												tileDone[tileKey] = true;
-											}
-										}
-										if (!$.app.renderer.tiles[t][tileKey]) {
-											$.app.renderer.tiles[t][tileKey] = new Image();
-											$.app.renderer.tiles[t][tileKey].lastDrawnId = 0;
-											$.app.renderer.tilecount++;
-											$.app.renderer.tiles[t][tileKey].src = tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
-											$.app.renderer.tiles[t][tileKey].onload = $.app.renderer.refresh;
-											$.app.renderer.tiles[t][tileKey].onerror = null
-										}
-									}
-								}
-							}
-						}
-						}
-					}   
-				},
-				{
-					id: 'markers',
-					zindex: 99,
-					update : function(){
-						if($.app.markers && $.app.markers.length){
-							return true;
-						}
-						return false;
-					},
-					visible : true,
-					alpha : 1,
-					callback :
-					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
-						for(var marker in $.app.markers){
-							if($.app.markers[marker].img && $.app.markers[marker].img.complete){
-								x = $.Math.round(($.app.pos.lon2posX($.app.markers[marker].lon)-xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
-								y = $.Math.round(($.app.pos.lat2posY($.app.markers[marker].lat)-yMin) / zp * zf) + $.app.markers[marker].offsetY - offsetY;
-								if(x>-50 && x<$.app.renderer.canvas.width+50 && y>-50 && y<$.app.renderer.canvas.height+50){
-									try {
-										$.app.renderer.context.globalAlpha = $.app.markers[marker].alpha || alpha;
-										$.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
-									} catch (e) {
-									}
-								}
-							} else {
-								$.app.markers[marker].img = new Image();
-								$.app.markers[marker].img.src = $.app.markers[marker].src;
-								$.app.markers[marker].img.onload = function(){
-									$.app.renderer.refresh();
-								}
-							}
-						}
-					}
-				},
-				{
-					id: 'tracks',
-					zindex: 1,
-					update : function(){
-						if($.app.tracks && $.app.tracks.length){
-							return true;
-						}
-						return false;
-					},
-					visible : true,
-					alpha : 0.8,
-					callback :
-					function(id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha){
-						$.app.renderer.context.globalAlpha = alpha;
-						function lon2x(lon){
-					        return Math.round(($.app.pos.lon2posX(lon)-xMin) / zp*zf)-offsetX;
-					    }
-	
-						function lat2y(lat){
-	                        return Math.round(($.app.pos.lat2posY(lat)-yMin) / zp*zf)-offsetY;
-						}
-						for(var t in $.app.tracks){
-							var track = $.app.tracks[t];
-							$.app.renderer.context.globalAlpha = track.alpha || alpha;
-							$.app.renderer.context.strokeStyle = track.strokeStyle;
-							$.app.renderer.context.lineWidth   = track.lineWidth;
-							$.app.renderer.context.beginPath();
-							$.app.renderer.context.moveTo(lon2x(track.points[0][0]), lat2y(track.points[0][1]));
-							for(var i=1; i<track.points.length; i++){
-								$.app.renderer.context.lineTo(lon2x(track.points[i][0]), lat2y(track.points[i][1]));	
-							}
-							$.app.renderer.context.stroke();
-							$.app.renderer.context.closePath();
-						}
-					}
-				}
-			],
+            },
+            { /* repaint canvas, load missing images */
+                id: 'tiles',
+                zindex: 1,
+                update: true,
+                visible: true,
+                alpha: 1,
+                callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
+                    var tileprovider, tileLayers;
+                    var maxTileNumber = $.Math.pow(2, zi) - 1;
+                    var tileDone = [];
+                    var preload = 0;
+                    var encodeIndex = function (x, y, z) {
+                        return x + "," + y + "," + z;
+                    };
+                    if (typeof $.app.tileprovider === 'function') {
+                        tileLayers = {
+                            base: {
+                                url: $.app.tileprovider
+                            }
+                        };
+                    } else {
+                        tileLayers = $.app.tileprovider
+                    }
+                    for (var t in tileLayers) {
+                        tileprovider = tileLayers[t].url;
+                        $.app.renderer.context.globalAlpha = tileLayers[t].alpha ||  alpha;
+                        $.app.renderer.tiles[t] = $.app.renderer.tiles[t] ||   {};
+                        tileDone = [];
+                        for (var x = $.Math.floor(xMin / sz) - preload; x < $.Math.ceil(xMax / sz) + preload; ++x) {
+                            tileDone[x] = [];
+                            for (var y = $.Math.floor(yMin / sz) - preload; y < $.Math.ceil(yMax / sz) + preload; ++y) {
+                                tileDone[tileKey] = false;
+                                var xoff = $.Math.round((x * sz - xMin) / zp * zf) - offsetX;
+                                var yoff = $.Math.round((y * sz - yMin) / zp * zf) - offsetY;
+                                var tileKey = encodeIndex(x, y, zi);
+                                if (x > maxTileNumber || y > maxTileNumber || x < 0 || y < 0) {
+                                    $.app.renderer.context.fillStyle = "#dddddd";
+                                    $.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+                                    tileDone[tileKey] = true;
+                                } else {
+                                    if ($.app.renderer.tiles[t][tileKey] && $.app.renderer.tiles[t][tileKey].complete) {
+                                        try {
+                                            $.app.renderer.context.drawImage($.app.renderer.tiles[t][tileKey], xoff, yoff, tilesize, tilesize);
+                                            $.app.renderer.tiles[t][tileKey].lastDrawnId = id;
+                                        } catch (e) {
+                                            $.app.renderer.context.fillStyle = "#dddddd";
+                                            $.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+                                        }
+                                        tileDone[tileKey] = true;
+                                    } else {
+                                        var tileAboveX = $.Math.floor(x / 2);
+                                        var tileAboveY = $.Math.floor(y / 2);
+                                        var tileAboveZ = zi - 1;
+                                        var tilePartOffsetX = $.Math.ceil(x - tileAboveX * 2);
+                                        var tilePartOffsetY = $.Math.ceil(y - tileAboveY * 2);
+                                        var tileKeyAbove = encodeIndex(tileAboveX, tileAboveY, tileAboveZ);
+                                        if (preload && !$.app.renderer.tiles[t][tileKeyAbove]) {
+                                            $.app.renderer.tiles[t][tileKeyAbove] = new Image;
+                                            $.app.renderer.tiles[t][tileKeyAbove].src = tileprovider(tileAboveX, tileAboveY, tileAboveZ, $.app.renderer.tiles[tileKeyAbove]);
+                                            $.app.renderer.tiles[t][tileKeyAbove].onload = $.app.renderer.refresh;
+                                            $.app.renderer.tiles[t][tileKeyAbove].onerror = null
+                                        }
+                                        if (!tileDone[tileKey] && $.app.renderer.tiles[t][tileKeyAbove] && $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId) {
+                                            var tileOffsetX = xoff - tilePartOffsetX * tilesize;
+                                            var tileOffsetY = yoff - tilePartOffsetY * tilesize;
+                                            try {
+/*                                              $.app.renderer.context.drawImage(
+                                                    $.app.renderer.tiles[t][tileKeyAbove], 
+                                                    tileOffsetX, tileOffsetY,
+                                                    $.Math.ceil(2*tilesize), $.Math.ceil(2*tilesize)
+                                                );  
+*/
+                                                $.app.renderer.context.drawImage(
+                                                $.app.renderer.tiles[t][tileKeyAbove], tilePartOffsetX * 127, tilePartOffsetY * 127, 127, 127, tileOffsetX + tilesize * tilePartOffsetX, tileOffsetY + tilesize * tilePartOffsetY, tilesize, tilesize);
+
+                                                $.app.renderer.tiles[t][tileKeyAbove].lastDrawnId = id;
+                                            } catch (e) {
+                                                $.app.renderer.context.fillStyle = "#dddddd";
+                                                $.app.renderer.context.fillRect(tileOffsetX, tileOffsetY, $.Math.ceil(2 * tilesize), $.Math.ceil(2 * tilesize));
+                                            }
+                                            tileDone[tileKey] = true;
+
+                                        } else {
+                                            if (!tileDone[tileKey]) {
+                                                $.app.renderer.context.fillStyle = "#dddddd";
+                                                $.app.renderer.context.fillRect(xoff, yoff, tilesize, tilesize);
+                                                tileDone[tileKey] = true;
+                                            }
+                                        }
+                                        if (!$.app.renderer.tiles[t][tileKey]) {
+                                            $.app.renderer.tiles[t][tileKey] = new Image();
+                                            $.app.renderer.tiles[t][tileKey].lastDrawnId = 0;
+                                            $.app.renderer.tilecount++;
+                                            $.app.renderer.tiles[t][tileKey].src = tileprovider(x, y, zi, $.app.renderer.tiles[tileKey]);
+                                            $.app.renderer.tiles[t][tileKey].onload = $.app.renderer.refresh;
+                                            $.app.renderer.tiles[t][tileKey].onerror = null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'markers',
+                zindex: 99,
+                update: function () {
+                    if ($.app.markers && $.app.markers.length) {
+                        return true;
+                    }
+                    return false;
+                },
+                visible: true,
+                alpha: 1,
+                callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
+                    for (var marker in $.app.markers) {
+                        if ($.app.markers[marker].img && $.app.markers[marker].img.complete) {
+                            x = $.Math.round(($.app.pos.lon2posX($.app.markers[marker].lon) - xMin) / zp * zf) + $.app.markers[marker].offsetX - offsetX;
+                            y = $.Math.round(($.app.pos.lat2posY($.app.markers[marker].lat) - yMin) / zp * zf) + $.app.markers[marker].offsetY - offsetY;
+                            if (x > -50 && x < $.app.renderer.canvas.width + 50 && y > -50 && y < $.app.renderer.canvas.height + 50) {
+                                try {
+                                    $.app.renderer.context.globalAlpha = $.app.markers[marker].alpha ||  alpha;
+                                    $.app.renderer.context.drawImage($.app.markers[marker].img, x, y);
+                                } catch (e) {}
+                            }
+                        } else {
+                            $.app.markers[marker].img = new Image();
+                            $.app.markers[marker].img.src = $.app.markers[marker].src;
+                            $.app.markers[marker].img.onload = function () {
+                                $.app.renderer.refresh();
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                id: 'tracks',
+                zindex: 1,
+                update: function () {
+                    if ($.app.tracks && $.app.tracks.length) {
+                        return true;
+                    }
+                    return false;
+                },
+                visible: true,
+                alpha: 0.8,
+                callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
+                    $.app.renderer.context.globalAlpha = alpha;
+
+                    function lon2x(lon) {
+                        return Math.round(($.app.pos.lon2posX(lon) - xMin) / zp * zf) - offsetX;
+                    }
+
+                    function lat2y(lat) {
+                        return Math.round(($.app.pos.lat2posY(lat) - yMin) / zp * zf) - offsetY;
+                    }
+                    for (var t in $.app.tracks) {
+                        var track = $.app.tracks[t];
+                        $.app.renderer.context.globalAlpha = track.alpha ||  alpha;
+                        $.app.renderer.context.strokeStyle = track.strokeStyle;
+                        $.app.renderer.context.lineWidth = track.lineWidth;
+                        $.app.renderer.context.beginPath();
+                        $.app.renderer.context.moveTo(lon2x(track.points[0][0]), lat2y(track.points[0][1]));
+                        for (var i = 1; i < track.points.length; i++) {
+                            $.app.renderer.context.lineTo(lon2x(track.points[i][0]), lat2y(track.points[i][1]));
+                        }
+                        $.app.renderer.context.stroke();
+                        $.app.renderer.context.closePath();
+                    }
+                }
+            }],
             refresh: function () {
-                var now = function(){
+                var now = function () {
                     return (new $.Date()).getTime();
                 }
-                var refreshBeforeFPS = 1000/$.app.renderer.refreshFPS - 
-                	(now() - $.app.renderer.refreshLastStart);
-                if(refreshBeforeFPS > 0){
-					/* too early - postpone refresh */
-					setTimeout($.app.renderer.refresh, refreshBeforeFPS);
-					return;
+                var refreshBeforeFPS = 1000 / $.app.renderer.refreshFPS - (now() - $.app.renderer.refreshLastStart);
+                if (refreshBeforeFPS > 0) { /* too early - postpone refresh */
+                    setTimeout($.app.renderer.refresh, refreshBeforeFPS);
+                    return;
                 }
-				$.app.renderer.refreshLastStart = now();
+                $.app.renderer.refreshLastStart = now();
                 var refreshId = ++$.app.renderer.refreshCounter;
                 var z = $.app.pos.z;
-                var zf = $.app.useFractionalZoom?(1+z-parseInt(z)):1;
+                var zf = $.app.useFractionalZoom ? (1 + z - parseInt(z)) : 1;
                 var zi = parseInt(z);
                 var zp = $.Math.pow(2, $.app.renderer.maxZ - zi);
                 var w = $.app.renderer.canvas.width * zp;
                 var h = $.app.renderer.canvas.height * zp;
                 var sz = $.app.renderer.tilesize * zp;
-                var tilesize = $.Math.ceil($.app.renderer.tilesize*zf);
+                var tilesize = $.Math.ceil($.app.renderer.tilesize * zf);
                 var xMin = Math.floor($.app.pos.x - w / 2);
                 var yMin = Math.floor($.app.pos.y - h / 2);
                 var xMax = Math.ceil($.app.pos.x + w / 2);
                 var yMax = Math.ceil($.app.pos.y + h / 2);
-				var offsetX = Math.round((zf-1)*(xMax-xMin)/zp/2);
-				var offsetY = Math.round((zf-1)*(yMax-yMin)/zp/2);
+                var offsetX = Math.round((zf - 1) * (xMax - xMin) / zp / 2);
+                var offsetY = Math.round((zf - 1) * (yMax - yMin) / zp / 2);
 
-				for (l in $.app.renderer.layers) {
-					if($.app.renderer.layers[l].visible && $.app.renderer.layers[l].update){
-						$.app.renderer.layers[l].callback(refreshId, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY,$.app.renderer.layers[l].alpha);
-					}
-				}
-				for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
-					$.app.renderer.refreshListeners[i]();
-				}
-                if(refreshId % 10 === 0){
-                	$.app.renderer.garbage();
+                for (l in $.app.renderer.layers) {
+                    if ($.app.renderer.layers[l].visible && $.app.renderer.layers[l].update) {
+                        $.app.renderer.layers[l].callback(refreshId, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, $.app.renderer.layers[l].alpha);
+                    }
+                }
+                for (var i = 0; i < $.app.renderer.refreshListeners.length; i++) {
+                    $.app.renderer.refreshListeners[i]();
+                }
+                if (refreshId % 10 === 0) {
+                    $.app.renderer.garbage();
                 }
             },
-            refreshCounter : 0,
-            refreshLastStart : 0,
-            refreshFPS : 50,
-            refreshListeners : {},
+            refreshCounter: 0,
+            refreshLastStart: 0,
+            refreshFPS: 50,
+            refreshListeners: {},
             /* garbage collector, purges tiles if more than 500 are loaded and tile is more than 100 refresh cycles old */
             garbage: function () {
-            	return;
-            	if($.app.renderer.tilecount>200){
-	                if ($.app.renderer.tiles) {
-    	                var remove = [];
-        	            for (var key in $.app.renderer.tiles) {
-            	            if ($.app.renderer.tiles[key] && 
-	            	            $.app.renderer.tiles[key].complete &&
-								$.app.renderer.tiles[key].lastDrawnId < ($.app.renderer.refreshCounter - 100)) {
-	                            remove.push(key);
-    	                    }
-        	            }
-	                    for (var i = 0; i < remove.length; i++) {
-    	                    delete $.app.renderer.tiles[remove[i]];
-        	            }
-	                    $.app.renderer.tilecount -= i;
-    	            }
-    	        }
+                return;
+                if ($.app.renderer.tilecount > 200) {
+                    if ($.app.renderer.tiles) {
+                        var remove = [];
+                        for (var key in $.app.renderer.tiles) {
+                            if ($.app.renderer.tiles[key] && $.app.renderer.tiles[key].complete && $.app.renderer.tiles[key].lastDrawnId < ($.app.renderer.refreshCounter - 100)) {
+                                remove.push(key);
+                            }
+                        }
+                        for (var i = 0; i < remove.length; i++) {
+                            delete $.app.renderer.tiles[remove[i]];
+                        }
+                        $.app.renderer.tilecount -= i;
+                    }
+                }
             }
         },
         /* positioning, conversion between pixel + lon/lat */
@@ -556,27 +532,27 @@
                 return $.Math.pow(2, $.app.renderer.maxZ) * $.app.renderer.tilesize * (lon + 180) / 360;
             },
             tile2lon: function (x, z) {
-            	if(typeof z === 'undefined'){
-            		z = $.app.pos.z;
-            	}
+                if (typeof z === 'undefined') {
+                    z = $.app.pos.z;
+                }
                 return (x / $.Math.pow(2, z) * 360 - 180);
             },
             tile2lat: function (y, z) {
-            	if(typeof z === 'undefined'){
-            		z = $.app.pos.z;
-            	}
+                if (typeof z === 'undefined') {
+                    z = $.app.pos.z;
+                }
                 var n = $.Math.PI - 2 * $.Math.PI * y / $.Math.pow(2, z);
                 return (180 / $.Math.PI * $.Math.atan(0.5 * ($.Math.exp(n) - $.Math.exp(-n))));
             }
         }
     };
     $.document.addEventListener('DOMContentLoaded', $.app.init, null);
-}(  window, // global
-    "map",  // id of div
-    1,      // zoom level
-    0,     // lon
-    0      // lat
+}(window, // global
+"map", // id of div
+0, // zoom level
+0, // lon
+0 // lat
 ));
 if (navigator.userAgent.match(/iphone/i)) {
-	setTimeout(scrollTo, 0, 0, 0);
+    setTimeout(scrollTo, 0, 0, 0);
 }
