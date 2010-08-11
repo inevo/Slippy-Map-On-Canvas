@@ -57,6 +57,54 @@
 	background-position:0 2px;
 }
 
+@-webkit-keyframes progress {
+    from {
+		background-color: rgba(0,0,0,1);
+    }
+
+	to {
+		background-color: rgba(0,0,0,0);
+    }
+}
+@-webkit-keyframes error {
+    from {
+		background-color: rgba(255,0,0,1);
+    }
+
+	to {
+		background-color: rgba(255,0,0,0);
+    }
+}
+@-webkit-keyframes success {
+    from {
+		background-color: rgba(0,255,0,1);
+    }
+
+	to {
+		background-color: rgba(0,255,0,0);
+    }
+}
+#buttons li a.gps[dispatched=true]{
+	-webkit-animation-name: progress;
+ 	-webkit-animation-duration: 1s;
+ 	-webkit-animation-iteration-count: infinite;
+ 	-webkit-animation-direction: ease-in-out;
+ 	-webkit-animation-delay: 0s;
+}
+#buttons li a.gps[error=true]{
+	-webkit-animation-name: error;
+ 	-webkit-animation-duration: 10s;
+ 	-webkit-animation-iteration-count: 1;
+ 	-webkit-animation-direction: ease-out;
+ 	-webkit-animation-delay: 0s;
+}
+#buttons li a.gps[success=true]{
+	-webkit-animation-name: success;
+ 	-webkit-animation-duration: 10s;
+ 	-webkit-animation-iteration-count: 1;
+ 	-webkit-animation-direction: ease-out;
+ 	-webkit-animation-delay: 0s;
+}
 
 #info {
 	background: #fff;
