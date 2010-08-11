@@ -180,9 +180,9 @@
                 var now = function(){
                     return (new $.Date()).getTime();
                 }
-                var touches = event.changedTouches,
+                var touches = event.targetTouches,
                     type, first = touches[0];
-                if (touches.length == 1) {
+                if (touches.length === 1) {
                     switch (event.type) {
                     case 'touchstart':
                         type = 'mousedown';
@@ -218,14 +218,13 @@
             },
             /* minimal pinch support */
             gestureHandler: function (event) {
-                var touches = event.changedTouches;
                 if (event.scale) {
-                    if (event.scale > 1.5) {
-                        $.app.zoomIn(0.1, false);
+                    if (event.scale > 1) {
+                        $.app.zoomIn((event.scale-1)/10, false);
                         return true;
                     }
-                    if (event.scale < 0.5) {
-                        $.app.zoomOut(0.1, false);
+                    if (event.scale < 1) {
+                        $.app.zoomOut(event.scale/10, false);
                         return true;
                     }
                 }
