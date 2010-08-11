@@ -2,7 +2,7 @@
 <html manifest="map.manifest">
 	<head>
 		<meta charset="utf-8">
-		<title>Slippy Map on Canvas (HTML5) | simple marker + path example</title>
+		<title>Slippy Map on Canvas (HTML5) | WMS sample | Topography and Bathymetry</title>
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
@@ -10,40 +10,28 @@
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			app.tracks = {
-				'berlin-hongkong' : {
-					strokeStyle : "#f00",
-					lineWidth : 4,
+			app.tileprovider = {
+				'osm' : {
 					alpha : 1,
-					points : [[13.409500,52.522488],[37.617633, 55.755786],[114.10494,22.381111]]
-				}
-			};
-        	app.markers = {	
-        		'Berlin' : {
-					src : "../images/marker.png",
-					lon : 13.409500,
-					lat : 52.522488,
-					offsetX : -11,
-					offsetY : -25,
-					alpha : 1
+					url :	function (x, y, z) {
+				    	        var rand = function (n) {
+			            		return Math.floor(Math.random() * n);
+            				};
+				            var sub = ["a", "b", "c"];
+				            var url = "http://" + sub[rand(3)] + ".tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png";
+				            return url;
+					}
 				},
-				'Moskva' : {
-					src : "../images/marker.png",
-					lon : 37.617633,
-					lat : 55.755786,
-					offsetX : -11,
-					offsetY : -25,
-					alpha : 1
-				},
-				'Hong Kong' : {
-					src : "../images/marker.png",
-					lon : 114.10494,
-					lat : 22.381111,
-					offsetX : -11,
-					offsetY : -25,
-					alpha : 1
+				'hill' : {
+					alpha : 1,
+					url :	function(x,y,z){
+								return "http://www.wanderreitkarte.de/hills/" + z + "/" + x + "/" + y + ".png";
+					}
 				}
 			}
+			app.postInitListeners.push(function(){
+				app.recenter(13.05, 50, 7);
+			});
 		</script>
 	</head>
 	<body>
@@ -54,5 +42,6 @@
 			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
 			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
 		</ul>
+		<div id="copyright">Data by NASA</div>
 	</body>
 </html>
