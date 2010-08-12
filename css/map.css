@@ -1,9 +1,22 @@
+* {
+-webkit-touch-callout: none;
+-webkit-text-size-adjust: none;
+-webkit-user-select:none;
+pointer-events: none;
+}
+
 body {
 font: 14px/1.4 Arial,sans-serif;
 margin:0;
 padding:0;
 height: 100%;
 width:100%;
+-webkit-palm-mouse-target: ignore;
+}
+
+body * {
+pointer-events: auto;
+-webkit-palm-mouse-target: auto;
 }
 
 #map {
@@ -13,7 +26,5 @@ left:0;
 bottom:0;
 right:0;
 cursor:move;
--webkit-user-select:ignore;
 image-rendering: optimizeQuality;
--ms-interpolation-mode: bicubic;
 }
