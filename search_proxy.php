@@ -8,8 +8,8 @@ $find = $_REQUEST['q'];
 $max = $_REQUEST['maxRows'];
 $fuzzy = $_REQUEST['fuzzy'];
 
-$url = 'http://ws.geonames.org/searchJSON?q='.urlencode($find).'&maxRows='+max; 
-if($fuzzy) $url .= '&fuzzy=0';
+$url = 'http://ws.geonames.org/searchJSON?q='.urlencode($find).'&maxRows='.$max; 
+if($fuzzy) $url .= '&fuzzy='.$fuzzy;
 
 
 $ch = curl_init(); 
