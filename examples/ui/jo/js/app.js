@@ -1,7 +1,7 @@
 var UI;
 var geonamesReq;
 var geolocation_error;
-var useProxy = true;
+var useProxy = false;
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -76,16 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     break;
                 case 'mark':
                     stack.push(map);
-                    var pos = app.pos.getLonLat();
-                    var id = (new Date()).getTime();
-                    app.markers[id] = {
-                        src: "../../../images/marker.png",
-                        lon: pos[0],
-                        lat: pos[1],
-                        offsetX: -11,
-                        offsetY: -25,
-                        alpha: 1
-                    };
+					addmarker();
                     app.renderer.refresh();
 
                     break;
@@ -271,6 +262,26 @@ document.addEventListener('DOMContentLoaded', function () {
             document.body.appendChild(stack.container);
             stack.push(map);
         }
+        
+        function addmarker(){
+        	                var pos = app.pos.getLonLat();
+                    var id = (new Date()).getTime();
+                    app.markers[id] = {
+                        src: "../../../images/marker.png",
+                        lon: pos[0],
+                        lat: pos[1],
+                        offsetX: -11,
+                        offsetY: -25,
+                        alpha: 1
+                    };
+
+        }
+
+		 function geosuccess(coords) {
+            addmarker();
+            app.ui.geolocation.displayPosition(coords);
+        }
+
 
         function geoerror(error) {
             geoerror = new joCard([
@@ -283,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         function geolocate() {
-            app.ui.geolocation.location(false, geoerror, {
+            app.ui.geolocation.location(geosuccess, geoerror, {
                 enableHighAccuracy: true
             });
             document.getElementById("geo").setAttribute("dispatched", true);
