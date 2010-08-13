@@ -2,9 +2,14 @@
 
 /* proxy for gazetteer */
 
-$find = $_REQUEST['find'];
+error_reporting(0);
 
-$url = 'http://gazetteer.openstreetmap.org/namefinder/search.xml?find='.urlencode($find).'&max=1&any=1';
+$find = $_REQUEST['q'];
+$max = $_REQUEST['maxRows'];
+$fuzzy = $_REQUEST['fuzzy'];
+
+$url = 'http://ws.geonames.org/searchJSON?q='.urlencode($find).'&maxRows='+max; 
+if($fuzzy) $url .= '&fuzzy=0';
 
 
 $ch = curl_init(); 

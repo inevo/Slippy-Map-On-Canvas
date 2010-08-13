@@ -21,15 +21,26 @@ document.addEventListener('DOMContentLoaded', function(){
 				}
 			}
 		},
-		location: function () {
+		location: function (success, error, options) {
 			console.log("dispatch getCurrentPosition");
 			try {
 				document.getElementById("geo").setAttribute("dispatched", true);
 			} catch (e){};
 			app.ui.geolocation.gl.getCurrentPosition(
-				window.app.ui.geolocation.displayPosition,
-				window.app.ui.geolocation.displayError,
-				{maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
+				success || window.app.ui.geolocation.displayPosition,
+				error || window.app.ui.geolocation.displayError,
+				options || {maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
+			);
+		},
+		watch: function (success, error, options) {
+			console.log("dispatch watchPosition");
+			try {
+				document.getElementById("geo").setAttribute("dispatched", true);
+			} catch (e){};
+			app.ui.geolocation.gl.watchPosition(
+				success || window.app.ui.geolocation.displayPosition,
+				error || window.app.ui.geolocation.displayError,
+				options || {maximumAge:600000, timeout:3000, enableHighAccuracy: false, responseTime: 2}
 			);
 		},
 		displayError: function (error) {
