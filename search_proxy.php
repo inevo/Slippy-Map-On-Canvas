@@ -2,7 +2,7 @@
 
 /* proxy for gazetteer */
 
-$find = $_REQUEST['search'];
+$find = $_REQUEST['find'];
 
 $url = 'http://gazetteer.openstreetmap.org/namefinder/search.xml?find='.urlencode($find).'&max=1&any=1';
 
