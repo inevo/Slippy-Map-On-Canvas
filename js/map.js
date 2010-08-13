@@ -10,23 +10,27 @@
 (function ($, div, z, x, y, markers, tileprovider) {
     $.app = {
         init: function () {
-            var viewportWidth = $.innerWidth,
-                viewportHeight = $.innerHeight;
-            for (var i = 0; i < $.app.preInitListeners.length; i++) {
-                $.app.preInitListeners[i]();
-            }
-            $.app.pos.x = $.app.pos.lon2posX(x);
-            $.app.pos.y = $.app.pos.lat2posY(y);
-            $.app.pos.z = z;
-            $.app.renderer.canvas = $.document.getElementById(div);
-            $.app.renderer.canvas.width = viewportWidth;
-            $.app.renderer.canvas.height = viewportHeight;
-            $.app.renderer.context = $.app.renderer.canvas.getContext("2d");
-            $.app.renderer.sortLayers();
-            $.app.renderer.refresh();
-            $.app.events.init();
-            for (var i = 0; i < $.app.postInitListeners.length; i++) {
-                $.app.postInitListeners[i]();
+        	if($.document.getElementById(div)){
+				var viewportWidth = $.innerWidth,
+					viewportHeight = $.innerHeight;
+				for (var i = 0; i < $.app.preInitListeners.length; i++) {
+					$.app.preInitListeners[i]();
+				}
+				$.app.pos.x = $.app.pos.lon2posX(x);
+				$.app.pos.y = $.app.pos.lat2posY(y);
+				$.app.pos.z = z;
+				$.app.renderer.canvas = $.document.getElementById(div);
+				$.app.renderer.canvas.width = viewportWidth;
+				$.app.renderer.canvas.height = viewportHeight;
+				$.app.renderer.context = $.app.renderer.canvas.getContext("2d");
+				$.app.renderer.sortLayers();
+				$.app.renderer.refresh();
+				$.app.events.init();
+				for (var i = 0; i < $.app.postInitListeners.length; i++) {
+					$.app.postInitListeners[i]();
+				}
+            } else {
+            	console.log("canvas not found");
             }
         },
         preInitListeners: [],
