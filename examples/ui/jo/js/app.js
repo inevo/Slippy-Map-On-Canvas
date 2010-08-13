@@ -134,6 +134,7 @@ UI = (function() {
 									break;
 			}	
 			stack.push(map);
+			app.renderer.refrsh();
 		}, this);
 
 		
