@@ -77,8 +77,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 case 'mark':
                     stack.push(map);
 					addmarker();
-                    app.renderer.refresh();
-
                     break;
                 case 'clear':
                     stack.push(map);
@@ -216,13 +214,12 @@ document.addEventListener('DOMContentLoaded', function () {
             processreq = function () {
                 if (geonamesReq.readyState == 4 && geonamesReq.status == 200) {
                     found = JSON.parse(geonamesReq.responseText);
-                    console.log(found);
                     if (found.geonames.length > 0) {
                         var locations = [];
                         for (var g in found.geonames) {
                             locations.push({
                                 title: found.geonames[g].name + ", " + found.geonames[g].countryCode,
-                                id: [found.geonames[g].lat, found.geonames[g].lng, 10]
+                                id: [found.geonames[g].lat, found.geonames[g].lng, 13 ,found.geonames[g].name]
                             })
                         }
                         foundmenu = new joCard([
@@ -233,6 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         foundmenulist.selectEvent.subscribe(function (id) {
                             stack.push(map);
                             app.recenter(parseFloat(id[1]), parseFloat(id[0]), parseFloat(id[2]));
+							addmarker(id[3]);
                         });
                         stack.push(foundmenu);
                     } else {
@@ -263,9 +261,9 @@ document.addEventListener('DOMContentLoaded', function () {
             stack.push(map);
         }
         
-        function addmarker(){
-        	                var pos = app.pos.getLonLat();
-                    var id = (new Date()).getTime();
+        function addmarker(id){
+        	        var pos = app.pos.getLonLat();
+                    if(!id) id = (new Date()).getTime();
                     app.markers[id] = {
                         src: "../../../images/marker.png",
                         lon: pos[0],
@@ -274,12 +272,12 @@ document.addEventListener('DOMContentLoaded', function () {
                         offsetY: -25,
                         alpha: 1
                     };
-
+                    app.renderer.refresh();
         }
 
 		 function geosuccess(coords) {
-            addmarker();
             app.ui.geolocation.displayPosition(coords);
+            addmarker();
         }
 
 
