@@ -63,6 +63,7 @@ UI = (function() {
 			new joTitle("Menu"),
 			menulist = new joMenu([
 				{ title: "Switch Tile Source", id: "tilemenu" },
+				{ title: "Locate Position", id: "geolocation" },
 				{ title: "Find Name", id: "find" },
 				{ title: "Credits", id: "credits" },
 			]),
@@ -77,7 +78,12 @@ UI = (function() {
 		};
 
 		menulist.selectEvent.subscribe(function(id) {
-			stack.push(eval(id));
+			if(id === 'geolocation'){
+				app.ui.geolocation.location();
+				stack.push(map);
+			} else {
+				stack.push(eval(id));
+			}
 		});
 
 		tilemenu = new joCard([
@@ -134,7 +140,8 @@ UI = (function() {
 									break;
 			}	
 			stack.push(map);
-			app.renderer.refrsh();
+			app.renderer.tiles = [];
+			app.renderer.refresh();
 		}, this);
 
 		
