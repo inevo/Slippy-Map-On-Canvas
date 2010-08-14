@@ -37,6 +37,7 @@
 						console.log("canvas not found");
 					}
 				},
+				div : div,
 				preInitListeners: [],
 				postInitListeners: [],
 				markers: markers || {},
@@ -52,6 +53,7 @@
 				},
 				useFractionalZoom: true,
 				zoomIn: function (step, round) {
+					console.log(step, round);
 					if (map.pos.z < map.renderer.maxZ) {
 						map.pos.z += step || 1;
 						if (round !== false) {
@@ -86,13 +88,13 @@
 				/* keep track of zoom + pans */
 				zoomed: function () {
 					for (var i = 0; i < map.zoomedListeners.length; i++) {
-						map.zoomedListeners[i].callback();
+						map.zoomedListeners[i]();
 					}
 				},
 				zoomedListeners: [],
 				moved: function () {
 					for (var i = 0; i < map.movedListeners.length; i++) {
-						map.movedListeners[i].callback();
+						map.movedListeners[i]();
 					}
 				},
 				movedListeners: [],
@@ -112,11 +114,11 @@
 					dragging: false,
 					lastTouchEvent: {},
 					lastTouchEventBeforeLast: {},
-					zoomIn: function (event) {
-						map.zoomIn();
+					zoomIn: function (event, step, round) {
+						map.zoomIn(step, round);
 					},
-					zoomOut: function (event) {
-						map.zoomOut();
+					zoomOut: function (event, step, round) {
+						map.zoomOut(step, round);
 					},
 					mouseDown: function (event) {
 						if (!event) {
@@ -563,6 +565,12 @@
 			/* public functions */
 				init : function(){
 					map.init();
+					for(var e in slippymap.extension) {
+						this[e] = slippymap.extension[e](map);
+						if(typeof this[e].init === 'function') {
+							this[e].init();
+						}
+					}
 					return this;
 				},
 				center : function(coords){
@@ -595,19 +603,20 @@
 					map.renderer.canvas.height = height;
 				},
 				addMovedListeners : function(listener){
-					map.movedListeners.push({callback: listener});
+					map.movedListeners.push(listener);
 				},
 				addZoomedListeners : function(listener){
-					map.zoomedListeners.push({callback: listener});
+					map.zoomedListeners.push(listener);
 				},
-				zoomIn : function (step, round){
-					map.events.zoomIn (step, round);
+				zoomIn : function (event, step, round){
+					map.events.zoomIn (event, step, round);
 				},
-				zoomOut : function (step, round){
-					map.events.zoomOut (step, round);
+				zoomOut : function (event, step, round){
+					map.events.zoomOut (event, step, round);
 				}
 			}
 		}
+		slippymap.extension = {};
 		window.slippymap = slippymap;
 	}
 })(window);

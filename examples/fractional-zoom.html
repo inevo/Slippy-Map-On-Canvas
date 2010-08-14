@@ -10,9 +10,8 @@
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			app.preInitListeners.push(function(){
-            	app.markers =    
-					{	'Berlin' : 
+			document.addEventListener('DOMContentLoaded', function(){
+				var markers = {	'Berlin' : 
 						{	src : "../images/marker.png",
 							lon : 13.409500,
 							lat : 52.522488,
@@ -33,17 +32,24 @@
 							offsetX : -11,
 							offsetY : -25
 						}
-					}
-            });
-		</script>
+				}
+				var map =  slippymap("map", true, 0, 0, 0, markers).init();
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', function(e){
+					map.zoomIn(e, 0.1,false);
+				});
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', function(e){
+					map.zoomOut(e, 0.1,false);
+				});
+			});
+		</script>	
 	</head>
 	<body>
 		<canvas id="map">
 			Your  browser doesn't support canvas elements.			
 		</canvas>
 		<ul id="buttons">
-			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(0.2, false); return false;">+</a></li>
-			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(0.2, false); return false;">-</a></li>
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
 		</ul>
 	</body>
 </html>

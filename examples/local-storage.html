@@ -8,32 +8,42 @@
 		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
 		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
-		<script src="../js/map.ui.geolocation.js" type="text/javascript"></script>
-		<script src="../js/map.ui.info.js" type="text/javascript"></script>
-		<script src="../js/map.ui.ini.js" type="text/javascript"></script>
 		<script src="../js/map.js" type="text/javascript"></script>
+		<script src="../js/map.geolocation.js" type="text/javascript"></script>
+		<script src="../js/map.ini.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				
+				var map =  slippymap("map", true, 0, 0, 0).init();
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
+				document.querySelectorAll("#buttons .gps")[0].addEventListener('click', function(){
+					map.geolocation.location();
+				});
+			});
+		</script>	
 	</head>
 	<body>
 		<canvas id="map">
-			Your browser doesn't support canvas elements.
+			Your  browser doesn't support canvas elements.			
 		</canvas>
 		<ul id="buttons">
-			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
-			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
-			<li><a class="gps" href="javascript:;" onclick="app.ui.geolocation.location(); return false;">x</a></li>
-			<li><a class="info" href="javascript:;" onclick="app.ui.info.show(); return false;">x</a></li>
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
+			<li><a class="gps" id="geo">x</a></li>
+			<li><a class="info">i</a></li>
 		</ul>
 		<div id="info">
 			<h1>Slippy Map on Canvas</h1>
 			<p>
 				2010, dFacts Network
-				<br /><br />
+				<br /><br />				
 				webkit only
 				<br /><br />
 				based on/ inspired by Tim Hutt <br />
 				http://concentriclivers.com/slippymap.html
 			</p>
-			<input type="button" value="close" onclick="app.ui.info.hide()" />
+			<input type="button" value="close" class="close" />
 		</div>
 	</body>
 </html>
