@@ -606,7 +606,6 @@
 				zoomOut : function (step, round){
 					map.events.zoomOut (step, round);
 				}
-
 			}
 		}
 		window.slippymap = slippymap;

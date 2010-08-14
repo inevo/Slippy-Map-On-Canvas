@@ -8,17 +8,31 @@
 		<link rel="apple-touch-icon-precomposed" href="images/touch-icon.png" />
 		<link href="css/map.css" rel="stylesheet" type="text/css" media="all" />
 		<link href="css/ui.css" rel="stylesheet" type="text/css" media="all" />
-		<script src="js/map.ui.info.js" type="text/javascript"></script>
 		<script src="js/map.js" type="text/javascript"></script>
-	</head>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				var showInfo = function(){
+					document.getElementById("info").style.display = "block";
+				}
+				var hideInfo = function(){
+					document.getElementById("info").style.display = "none";
+				}
+				var map =  slippymap("map", true, 0, 0, 0).init();
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
+				document.querySelectorAll("#buttons .info")[0].addEventListener('click', showInfo);
+				document.querySelectorAll("#info .close")[0].addEventListener('click', hideInfo);
+
+			});
+		</script>	</head>
 	<body>
 		<canvas id="map">
 			Your  browser doesn't support canvas elements.			
 		</canvas>
 		<ul id="buttons">
-			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
-			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
-			<li><a class="info" href="javascript:;" onclick="app.ui.info.show(); return false;">x</a></li>
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
+			<li><a class="info">i</a></li>
 		</ul>
 		<div id="info">
 			<h1>Slippy Map on Canvas</h1>
@@ -30,7 +44,7 @@
 				based on/ inspired by Tim Hutt <br />
 				http://concentriclivers.com/slippymap.html
 			</p>
-			<input type="button" value="close" onclick="app.ui.info.hide()" />
+			<input type="button" value="close" class="close" />
 		</div>
 	</body>
 </html>
