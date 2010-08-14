@@ -251,9 +251,8 @@
 					/* attaches events to map + window */
 					init: function () {
 						$.addEventListener('resize', map.resized, false);
-						$.addEventListener('DOMMouseScroll', map.events.mouseWheel, false);
-						$.addEventListener('mousewheel', map.events.mouseWheel, false);
-						$.addEventListener('mouseout', map.events.mouseOut, false);
+						map.renderer.canvas.addEventListener('DOMMouseScroll', map.events.mouseWheel, false);
+						map.renderer.canvas.addEventListener('mousewheel', map.events.mouseWheel, false);
 						map.renderer.canvas.addEventListener('mousedown', map.events.mouseDown, false);
 						map.renderer.canvas.addEventListener('mousemove', map.events.mouseMove, false);
 						map.renderer.canvas.addEventListener('mouseup', map.events.mouseUp, false);
