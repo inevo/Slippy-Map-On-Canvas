@@ -624,7 +624,16 @@
 					map.tileprovider = url;
 					map.renderer.tiles = [];
 					map.renderer.refresh();
+				},
+				setMarkers : function(markers){
+					map.markers = markers;
+					map.renderer.refresh();
+				},
+				setTracks : function(tracks){
+					map.tracks = tracks;
+					map.renderer.refresh();
 				}
+
 			}
 		}
 		slippymap.extension = {};
