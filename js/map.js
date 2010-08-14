@@ -6,7 +6,7 @@
  *  based on/ inspired by Tim Hutt, http://concentriclivers.com/slippymap.html
  *  added features like touch support, fractional zoom, markers ...
  */
-(function( window, undefined ) {
+(function( window, undefined) {
 	if(slippymap === undefined){
 		var slippymap = function (div, fullscreen, z, x, y, markers, tileprovider) {
 			$ = this || window;
@@ -36,7 +36,6 @@
 					} else {
 						console.log("canvas not found");
 					}
-					return this;
 				},
 				preInitListeners: [],
 				postInitListeners: [],
@@ -87,13 +86,13 @@
 				/* keep track of zoom + pans */
 				zoomed: function () {
 					for (var i = 0; i < map.zoomedListeners.length; i++) {
-						map.zoomedListeners[i]();
+						map.zoomedListeners[i].callback();
 					}
 				},
 				zoomedListeners: [],
 				moved: function () {
 					for (var i = 0; i < map.movedListeners.length; i++) {
-						map.movedListeners[i]();
+						map.movedListeners[i].callback();
 					}
 				},
 				movedListeners: [],
@@ -538,7 +537,7 @@
 				/* positioning, conversion between pixel + lon/lat */
 				pos: {
 					getLonLat: function () {
-						return [map.pos.tile2lon(map.pos.x / map.renderer.tilesize, map.renderer.maxZ), map.pos.tile2lat(map.pos.y / map.renderer.tilesize, map.renderer.maxZ), map.pos.z];
+						return { lon: map.pos.tile2lon(map.pos.x / map.renderer.tilesize, map.renderer.maxZ), lat: map.pos.tile2lat(map.pos.y / map.renderer.tilesize, map.renderer.maxZ), z: map.pos.z};
 					},
 					lat2posY: function (lat) {
 						return $.Math.pow(2, map.renderer.maxZ) * map.renderer.tilesize * (1 - $.Math.log($.Math.tan(lat * $.Math.PI / 180) + 1 / $.Math.cos(lat * $.Math.PI / 180)) / $.Math.PI) / 2;
@@ -561,7 +560,55 @@
 					}
 				}
 			};
-			return map;
+			return {
+			/* public functions */
+				init : function(){
+					map.init();
+					return this;
+				},
+				center : function(coords){
+					if(typeof coords !== 'object'){
+						return { x: map.pos.x, y: map.pos.y, z: map.pos.z }
+					} else {
+						map.pos.x = parseFloat(coords.x);
+						map.pos.y = parseFloat(coords.y);
+						map.pos.z = parseFloat(coords.z);
+						map.renderer.refresh();
+					}
+					return this;
+				},
+				coords : function(coords){
+					if(typeof coords !== 'object'){
+						return map.pos.getLonLat();
+					} else {
+						map.pos.recenter(parseFloat(coords.lon), parseFloat(coords.lat), parseFloat(coords.zoom));
+						map.renderer.refresh();
+					}
+					return this;
+				},				
+				refresh : function(){
+					map.renderer.refresh();
+				},
+				setWidth : function(width) {
+					map.renderer.canvas.width = width;
+				},
+				setHeight : function(height) {
+					map.renderer.canvas.height = height;
+				},
+				addMovedListeners : function(listener){
+					map.movedListeners.push({callback: listener});
+				},
+				addZoomedListeners : function(listener){
+					map.zoomedListeners.push({callback: listener});
+				},
+				zoomIn : function (step, round){
+					map.events.zoomIn (step, round);
+				},
+				zoomOut : function (step, round){
+					map.events.zoomOut (step, round);
+				}
+
+			}
 		}
 		window.slippymap = slippymap;
 	}
