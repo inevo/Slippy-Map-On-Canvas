@@ -11,12 +11,12 @@
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
 				var a, b;
-				a =  slippymap("map_a", false, 0, 0, 0, {},
+				a =  slippymap("map_a", false, 0, 0, 0, {}, {},
 						function(x,y,z){
 							var tilesSrcImagePath = "marker.png";
 							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"
 						}).init();
-				b =  slippymap("map_b", false, 0, 0, 0, {},
+				b =  slippymap("map_b", false, 0, 0, 0, {}, {},
 						function(x,y,z){
 							var tilesSrcImagePath = "touch-icon.png";
 							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"

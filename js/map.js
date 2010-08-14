@@ -8,7 +8,7 @@
  */
 (function( window, undefined) {
 	if(slippymap === undefined){
-		var slippymap = function (div, fullscreen, z, x, y, markers, tileprovider) {
+		var slippymap = function (div, fullscreen, z, x, y, markers, tracks, tileprovider) {
 			$ = this || window;
 			var map = {
 				init: function () {
@@ -33,7 +33,7 @@
 				},
 				div : div,
 				markers: markers || {},
-				tracks: {},
+				tracks: tracks || {},
 				tileprovider: tileprovider ||
 				function (x, y, z) {
 					var rand = function (n) {
@@ -573,7 +573,6 @@
 							}
 						}
 					}
-					console.log(map, this);
 					map.init();
 					return this;
 				},
