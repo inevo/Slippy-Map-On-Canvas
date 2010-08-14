@@ -15,12 +15,9 @@
 					if($.document.getElementById(div)){
 						var viewportWidth = $.innerWidth,
 							viewportHeight = $.innerHeight;
-						for (var i = 0; i < map.preInitListeners.length; i++) {
-							map.preInitListeners[i]();
-						}
-						map.pos.x = map.pos.lon2posX(x);
-						map.pos.y = map.pos.lat2posY(y);
-						map.pos.z = z;
+						map.pos.x = (map.pos && map.pos.x) || map.pos.lon2posX(x);
+						map.pos.y = (map.pos && map.pos.y) || map.pos.lat2posY(y);
+						map.pos.z = (map.pos && map.pos.z) || z;
 						map.renderer.canvas = $.document.getElementById(div);
 						if(fullscreen === true){
 							map.renderer.canvas.width = viewportWidth;
@@ -30,16 +27,11 @@
 						map.renderer.sortLayers();
 						map.renderer.refresh();
 						map.events.init();
-						for (var i = 0; i < map.postInitListeners.length; i++) {
-							map.postInitListeners[i]();
-						}
 					} else {
 						console.log("canvas not found");
 					}
 				},
 				div : div,
-				preInitListeners: [],
-				postInitListeners: [],
 				markers: markers || {},
 				tracks: {},
 				tileprovider: tileprovider ||
@@ -564,13 +556,25 @@
 			return {
 			/* public functions */
 				init : function(){
-					map.init();
+					/* init extensions first */
 					for(var e in slippymap.extension) {
-						this[e] = slippymap.extension[e](map);
-						if(typeof this[e].init === 'function') {
-							this[e].init();
+						if(typeof slippymap.extension[e] === 'function'){
+							this[e] = slippymap.extension[e](map);
+							if(typeof this[e].init === 'function') {
+								this[e].init();
+							}
+						} else {
+							this[e] = {};
+							for(var sub in slippymap.extension[e]) {	
+								this[e][sub] = slippymap.extension[e][sub](map);
+								if(typeof this[e][sub].init === 'function') {
+									this[e][sub].init();
+								}						
+							}
 						}
 					}
+					console.log(map, this);
+					map.init();
 					return this;
 				},
 				center : function(coords){
