@@ -45,7 +45,6 @@
 				},
 				useFractionalZoom: true,
 				zoomIn: function (step, round) {
-					console.log(step, round);
 					if (map.pos.z < map.renderer.maxZ) {
 						map.pos.z += step || 1;
 						if (round !== false) {
@@ -354,7 +353,8 @@
 												var tileKeyAbove = encodeIndex(tileAboveX, tileAboveY, tileAboveZ);
 												if (preload && !map.renderer.tiles[t][tileKeyAbove]) {
 													map.renderer.tiles[t][tileKeyAbove] = new Image;
-													map.renderer.tiles[t][tileKeyAbove].src = tileprovider(tileAboveX, tileAboveY, tileAboveZ, map.renderer.tiles[tileKeyAbove]);
+
+													map.renderer.tiles[t][tileKeyAbove].src = tileprovider(tileAboveX, tileAboveY, tileAboveZ, map.renderer.tiles[t][tileKeyAbove]);
 													map.renderer.tiles[t][tileKeyAbove].onload = map.renderer.refresh;
 													map.renderer.tiles[t][tileKeyAbove].onerror = null
 												}
@@ -387,7 +387,7 @@
 													map.renderer.tiles[t][tileKey] = new Image();
 													map.renderer.tiles[t][tileKey].lastDrawnId = 0;
 													map.renderer.tilecount++;
-													map.renderer.tiles[t][tileKey].src = tileprovider(x, y, zi, map.renderer.tiles[tileKey]);
+													map.renderer.tiles[t][tileKey].src = tileprovider(x, y, zi, map.renderer.tiles[t][tileKey]);
 													map.renderer.tiles[t][tileKey].onload = map.renderer.refresh;
 													map.renderer.tiles[t][tileKey].onerror = null
 												}
@@ -555,7 +555,7 @@
 			};
 			return {
 			/* public functions */
-				init : function(){
+				init : function(config){
 					/* init extensions first */
 					for(var e in slippymap.extension) {
 						if(typeof slippymap.extension[e] === 'function'){
@@ -572,6 +572,9 @@
 								}						
 							}
 						}
+					}
+					if(typeof config === 'function'){
+						config(this);
 					}
 					map.init();
 					return this;
@@ -616,6 +619,11 @@
 				},
 				zoomOut : function (event, step, round){
 					map.events.zoomOut (event, step, round);
+				},
+				setTileProvider : function(url){
+					map.tileprovider = url;
+					map.renderer.tiles = [];
+					map.renderer.refresh();
 				}
 			}
 		}

@@ -1,6 +1,6 @@
 (function( window, undefined) {
-	if(slippymap !== undefined){
-		slippymap.extension.ini = function(map) {
+	if(window.slippymap !== undefined){
+		window.slippymap.extension.ini = function(map) {
 			var ini = {
 				prefix : 'slippymap_'+map.div+'_',
 				init : function(){

@@ -1,6 +1,6 @@
 (function( window, undefined) {
-	if(slippymap !== undefined){
-		slippymap.extension.geolocation = function(map) {
+	if(window.slippymap !== undefined){
+		window.slippymap.extension.geolocation = function(map) {
 			var geo = {
 					gl : {
 						getCurrentPosition: function(){

@@ -1,7 +1,7 @@
 (function( window, undefined) {
-	if(slippymap !== undefined){
-		slippymap.extension.tiles = slippymap.extension.google || {};
-		slippymap.extension.tiles.gmap = function(map) {
+	if(window.slippymap !== undefined){
+		window.slippymap.extension.tiles = slippymap.extension.google || {};
+		window.slippymap.extension.tiles.gmap = function(map) {
 			return {
 				init : function(){
 					map.tileprovider =	function(x,y,z){
