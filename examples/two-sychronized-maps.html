@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
 		<title>Slippy Map on Canvas (HTML5)</title>
@@ -8,20 +8,47 @@
 		<link rel="apple-touch-icon-precomposed" href="images/touch-icon.png" />
 		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<style type="text/css">
+			#h_line,
+			#v_line_1,
+			#v_line_2 {
+				position: absolute;
+				pointer-events: none;
+				background: red;
+				background: rgba(255,0,0,0.5);
+			}
+			#h_line {
+				top: 50%;
+				left:0;
+				right:0;
+				height: 1px;
+				width: 100%;
+				z-index:999;
+			}
+			#v_line_1,
+			#v_line_2 {
+				top: 0;
+				bottom: 0;
+				width: 1px;
+				height: 100%;
+				z-index:999;
+			}
+			#v_line_1 {
+				left: 25%;
+			}
+			#v_line_2 {
+				right: 25%;
+			}
+		</style>
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
 				var a, b;
-				a =  slippymap("map_a", false, 0, 0, 0, {}, {},
+				a =  slippymap("map_a", false, 15, 13.4, 52.5).init();
+				b =  slippymap("map_b", false, 15, 13.4, 52.5, {}, {},
 						function(x,y,z){
-							var tilesSrcImagePath = "marker.png";
-							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"
+							return "http://mt1.google.com/vt/x="+x+"&y="+y+"&z="+z;
 						}).init();
-				b =  slippymap("map_b", false, 0, 0, 0, {}, {},
-						function(x,y,z){
-							var tilesSrcImagePath = "touch-icon.png";
-							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"
-					}).init();
 
 				var sync = function(source, target){
 					target.center(source.center());
@@ -49,11 +76,14 @@
 	</head>
 	<body>
 		<canvas id="map_a" style="position:absolute; left:0; top:0;">
-			Your  browser doesn't support canvas elements.			
+			Your  browser doesn't support canvas elements.
 		</canvas>
 		<canvas id="map_b" style="position:absolute; right:0; top:0;">
-			Your  browser doesn't support canvas elements.			
+			Your  browser still doesn't support canvas elements.
 		</canvas>
+		<div id="h_line"></div>
+		<div id="v_line_1"></div>
+		<div id="v_line_2"></div>
 		<ul id="buttons">
 			<li><a id="zoomin" class="zoomin" href="javascript:;">+</a></li>
 			<li><a id="zoomout" class="zoomout" href="javascript:;">-</a></li>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
 		<title>Slippy Map on Canvas (HTML5) | switch between different tile sources</title>
@@ -12,13 +12,16 @@
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
 				var currentTileProvider;
+				/* caches stores tiles of sources, not currently used */
+				var caches = [];
 				var init = function(){
-					currentTileProvider = 0;
+					currentTileProvider = -1;
 					nextTileSource();
 				}
 				var nextTileSource = function(){
-					currentTileProvider = currentTileProvider++ % tileProviders.length;
-					map.setTileProvider(tileProviders[currentTileProvider].provider);
+					caches[currentTileProvider] = map.getTileCache();
+					currentTileProvider = (++currentTileProvider) % tileProviders.length;
+					map.setTileProvider(tileProviders[currentTileProvider].provider, caches[currentTileProvider]);
 					document.getElementById('copyright').innerHTML = tileProviders[currentTileProvider].copyright;
 				}
 				var tileProviders = [ 	

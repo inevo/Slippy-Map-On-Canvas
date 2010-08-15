@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
-		<title>Slippy Map on Canvas (HTML5)</title>
+		<title>Slippy Map on Canvas (HTML5) | two seperate maps</title>
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<link rel="apple-touch-icon-precomposed" href="images/touch-icon.png" />
@@ -11,35 +11,22 @@
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
 				var a, b;
-				a =  slippymap("map_a", false, 0, 0, 0, {}, {},
-						function(x,y,z){
-							var tilesSrcImagePath = "marker.png";
-							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"
-						}).init();
-				b =  slippymap("map_b", false, 0, 0, 0, {}, {},
-						function(x,y,z){
-							var tilesSrcImagePath = "touch-icon.png";
-							return "../tile.php?src="+tilesSrcImagePath+"&x="+x+"&y="+y+"&z="+z+"&format=png"
-					}).init();
+				a =  slippymap("map_a", false, 0, 0, 0).init();
+				b =  slippymap("map_b", false, 0, 0, 0).init();
 
-				var sync = function(source, target){
-					target.center(source.center());
-				}
-				console.log(a,b);
 				a.setWidth(innerWidth/2);
 				b.setWidth(innerWidth/2);
 				a.setHeight(innerHeight);
 				b.setHeight(innerHeight);
-
 			});
 		</script>
 	</head>
 	<body>
 		<canvas id="map_a" style="position:absolute; left:0; top:0;">
-			Your  browser doesn't support canvas elements.			
+			Your  browser doesn't support canvas elements.
 		</canvas>
 		<canvas id="map_b" style="position:absolute; right:0; top:0;">
-			Your  browser doesn't support canvas elements.			
+			Your  browser still doesn't support canvas elements.
 		</canvas>
 	</body>
 </html>

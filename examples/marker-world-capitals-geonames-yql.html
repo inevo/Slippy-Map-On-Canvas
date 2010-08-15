@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
-		<title>World Capitals | geonames.org | yql</title>
+		<title>Slippy Map on Canvas (HTML5) | World Capitals | geonames.org | yql</title>
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
@@ -10,8 +10,30 @@
 		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
-			var map;
-			function mark(query_results){
+			document.addEventListener('DOMContentLoaded', function(){
+				var map =  slippymap("map", true, 0, 0, 0).init();
+								
+				var geonames_query, yql_select, yql_query; 
+				/* get xml */
+				geonames_query = 	'http://www.geonames.org/servlet/geonames?'+
+									'srv=2&south=90&north=-90&west=-180&east=180&'+
+									'P=1&lat=0&lng=0&zoom=1&fcode=PPLC&numrows=300'
+				/* parse xml - get only usefull stuff */
+				yql_select = 		"select marker.name, marker.lat, marker.lng from xml where "+
+									"url='"+geonames_query+"' "+
+									"| sort (field=\"marker.population\", descending=\"true\")";
+				/* yql query encoded */
+				yql_query = 		'http://query.yahooapis.com/v1/public/yql?q='+
+									escape(yql_select) +
+									'&format=json';
+				/* process results */
+				function mark(){
+					var query_results = {};
+					if(typeof JSON !== 'undefined'){
+						query_results = JSON.parse(this.responseText);
+					} else {
+						eval("query_results = "+this.responseText);
+					}
 					var marker, markers = [];
 					if(query_results.error){
 						console.log("YQL error: "+query_results.error.description);
@@ -31,33 +53,14 @@
 					}
 					map.setMarkers(markers);
 				}
+				/* send xhr request */
+				dataRequest = new XMLHttpRequest();
+				dataRequest.onreadystatechange = mark;
+				dataRequest.open('GET', yql_query, true);
+				dataRequest.send();
 
-			document.addEventListener('DOMContentLoaded', function(){
-				map =  slippymap("map", true, 0, 0, 0).init();
-								
 				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
 				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
-
-				var geonames_query, yql_select, yql_query; 
-				/* get xml */
-				geonames_query = 	'http://www.geonames.org/servlet/geonames?'+
-									'srv=2&south=90&north=-90&west=-180&east=180&'+
-									'P=1&lat=0&lng=0&zoom=1&fcode=PPLC&numrows=300'
-				/* parse xml - get only usefull stuff */
-				yql_select = 		"select marker.name, marker.lat, marker.lng from xml where "+
-									"url='"+geonames_query+"' "+
-									"| sort (field=\"marker.population\", descending=\"true\")";
-				/* yql query encoded */
-				yql_query = 		'http://query.yahooapis.com/v1/public/yql?q='+
-									escape(yql_select) +
-									'&format=json&callback=mark';
-				/* attach script */
-				yql_script = document.createElement("script");
-				yql_script.type = 'text/javascript';
-				yql_script.src = yql_query;
-				document.body.appendChild(yql_script);
-				/* yql json callback - convert data and attach to app.markers */
-				
 			});
 		</script>	
 	</head>

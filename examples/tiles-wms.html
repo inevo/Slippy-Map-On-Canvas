@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
 		<title>Slippy Map on Canvas (HTML5) | WMS sample | Topography and Bathymetry</title>
@@ -20,7 +20,7 @@
 						return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
 					}
 					var url="http://viz.globe.gov/viz-bin/wmt.cgi?";
-					var bbox = [tile2lon(x,z), tile2lat(y+1), tile2lon(x+1,z), tile2lat(y,z)];
+					var bbox = [tile2lon(x,z), tile2lat(y+1, z), tile2lon(x+1,z), tile2lat(y,z)];
 					url+="request=GetMap";
 					url+="&service=wms";
 					url+="&version=1.1.0";
@@ -29,11 +29,13 @@
 					url+="&format=image/gif";
 					url+="&srs=EPSG:4326"; //54004??
 					url+="&bbox="+bbox.join(",");
-					url+="&width=256";
-					url+="&height=256";
+					url+="&width=512";
+					url+="&height=512";
 					return url;
 				}
-				var map =  slippymap("map", true, 0, 0, 0, {}, {}, tileprovider).init();
+				var map =  slippymap("map", true, 0, 0, 0, {}, {}, tileprovider);
+				map.tileSize(512);
+				map.init();
 				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
 				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
 			});

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
 		<title>Slippy Map on Canvas (HTML5) | tiles are stored in sqlite db</title>
@@ -15,8 +15,6 @@
 				var map =  slippymap("map", true, 0, 0, 0).init(
 					function(map){
 						map.tiles.tilesCache.blank = "../images/blank.gif";
-						map.tiles.tilesCache.providerID = 'local';
-
 					}
 				);
 				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);

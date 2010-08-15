@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
-		<title>Slippy Map on Canvas (HTML5) | simple marker example</title>
+		<title>Slippy Map on Canvas (HTML5) | 3d CSS</title>
 		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
@@ -17,6 +17,11 @@
 				-webkit-transform-origin: 50% 0% 5%;
 			}
 		</style>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				var map =  slippymap("map", true, 0, 0, 0).init();
+			});
+		</script>	
 	</head>
 	<body>
 		<canvas id="map">

@@ -1,8 +1,9 @@
 var UI;
+var canvas;
 var geonamesReq;
 var geolocation_error;
 var useProxy = false;
-
+var state = {lon:0, lat:0, z:0}
 document.addEventListener('DOMContentLoaded', function () {
 
     jo.load();
@@ -23,11 +24,22 @@ document.addEventListener('DOMContentLoaded', function () {
             htmlgroup = new joHTML(document.getElementById('templateMap').innerHTML)]);
 
             map.activate = function () {
-                window.app.init();
+                canvas =  slippymap("map", true, state.z, state.lon, state.lat, {}).init();
+
                 document.getElementById("geo").removeAttribute("dispatched");
                 document.getElementById("geo").removeAttribute("error");
+                
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', canvas.zoomIn);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', canvas.zoomOut);
+				document.querySelectorAll("#buttons .gps")[0].addEventListener('click', function(){
+					geolocate();
+				});
+				document.querySelectorAll("#buttons .settings")[0].addEventListener('click', function(){
+	            	state = canvas.coords();
+					UI.show(menu);
+				});
+                
             }
-
             menu = new joCard([
             new joTitle("Menu"), menulist = new joMenu([{
                 title: "Switch Tile Source",
@@ -66,11 +78,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 switch (id) {
                 case 'geolocate':
                     stack.push(map);
-                    geolocate();
+                   	canvas.geolocation.location();
                     break;
                 case 'watchposition':
                     stack.push(map);
-                    app.ui.geolocation.watch(false, geoerror, {
+                    canvas.geolocation.watch(false, geoerror, {
                         enableHighAccuracy: true
                     });
                     break;
@@ -80,8 +92,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     break;
                 case 'clear':
                     stack.push(map);
-                    app.markers = {};
-                    app.renderer.refresh();
+                    canvas.setMarkers();
+                    canvas.refresh();
 
                     break;
                 default:
@@ -117,24 +129,25 @@ document.addEventListener('DOMContentLoaded', function () {
             };
 
             tilelist.selectEvent.subscribe(function (id) {
+            	var tileprovider;
                 switch (id) {
                 case "gmap":
-                    app.tileprovider = function (x, y, z) {
+                    tileprovider = function (x, y, z) {
                         return "http://mt1.google.com/vt/x=" + x + "&y=" + y + "&z=" + z;
                     }
                     break;
                 case "gsat":
-                    app.tileprovider = function (x, y, z) {
+                    tileprovider = function (x, y, z) {
                         return "http://khm1.google.com/kh/v=66&x=" + x + "&y=" + y + "&z=" + z;
                     }
                     break;
                 case "gtopo":
-                    app.tileprovider = function (x, y, z) {
+                    tileprovider = function (x, y, z) {
                         return "http://mt0.google.com/vt/lyrs=t&x=" + x + "&y=" + y + "&z=" + z;
                     }
                     break;
                 case "osma":
-                    app.tileprovider = function (x, y, z) {
+                    tileprovider = function (x, y, z) {
                         var rand = function (n) {
                             return Math.floor(Math.random() * n);
                         };
@@ -145,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     break;
                 default:
                 case "mapnik":
-                    app.tileprovider = function (x, y, z) {
+                    tileprovider = function (x, y, z) {
                         var rand = function (n) {
                             return Math.floor(Math.random() * n);
                         };
@@ -156,8 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     break;
                 }
                 stack.push(map);
-                app.renderer.tiles = [];
-                app.renderer.refresh();
+                canvas.setTileProvider(tileprovider);
             }, this);
 
 
@@ -229,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         foundmenulist.selectEvent.subscribe(function (id) {
                             stack.push(map);
-                            app.recenter(parseFloat(id[1]), parseFloat(id[0]), parseFloat(id[2]));
+                            canvas.recenter(parseFloat(id[1]), parseFloat(id[0]), parseFloat(id[2]));
 							addmarker(id[3]);
                         });
                         stack.push(foundmenu);
@@ -262,21 +274,31 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         
         function addmarker(id){
-        	        var pos = app.pos.getLonLat();
+        	        var pos = canvas.coords();
                     if(!id) id = (new Date()).getTime();
-                    app.markers[id] = {
-                        src: "../../../images/marker.png",
-                        lon: pos[0],
-                        lat: pos[1],
-                        offsetX: -11,
-                        offsetY: -25,
-                        alpha: 1
-                    };
-                    app.renderer.refresh();
+                    canvas.setMarker(id, {
+	                        src: "../../../images/marker.png",
+    	                    lon: pos.lon,
+        	                lat: pos.lat,
+            	            offsetX: -11,
+                	        offsetY: -25,
+                    	    alpha: 1
+                      	}
+                    );
+                    console.log(id, {
+	                        src: "../../../images/marker.png",
+    	                    lon: pos[0],
+        	                lat: pos[1],
+            	            offsetX: -11,
+                	        offsetY: -25,
+                    	    alpha: 1
+                      	}
+                    );
+                    canvas.refresh();
         }
 
 		 function geosuccess(coords) {
-            app.ui.geolocation.displayPosition(coords);
+            canvas.geolocation.displayPosition(coords);
             addmarker();
         }
 
@@ -292,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         function geolocate() {
-            app.ui.geolocation.location(geosuccess, geoerror, {
+            canvas.geolocation.location(geosuccess, geoerror, {
                 enableHighAccuracy: true
             });
             document.getElementById("geo").setAttribute("dispatched", true);
@@ -321,25 +343,5 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* overwrite ini */
 
-    app.init = function () {
-        var viewportWidth = innerWidth,
-            viewportHeight = innerHeight;
-        for (var i = 0; i < app.preInitListeners.length; i++) {
-            app.preInitListeners[i]();
-        }
-        app.renderer.canvas = document.getElementById('map');
-        app.renderer.canvas.width = viewportWidth;
-        app.renderer.canvas.height = viewportHeight;
-        app.pos.x = app.pos.x || app.pos.lon2posX(0);
-        app.pos.y = app.pos.y || app.pos.lat2posY(0);
-        app.pos.z = app.pos.z || 1;
-
-        app.renderer.context = app.renderer.canvas.getContext("2d");
-        app.renderer.sortLayers();
-        app.renderer.refresh();
-        app.events.init();
-        for (var i = 0; i < app.postInitListeners.length; i++) {
-            app.postInitListeners[i]();
-        }
-    }
+    
 });

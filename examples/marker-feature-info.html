@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="map.manifest">
+<html manifest="../map.manifest">
 	<head>
 		<meta charset="utf-8">
 		<title>Slippy Map on Canvas (HTML5) | simple path example</title>
@@ -36,9 +36,18 @@
 		</style>
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				var markers;
 				function featureInfo(e){
 					if (!event) {
-						event = $.event;
+						event = window.event;
+					}
+					function tile2lon(x, z) {
+						return (x / Math.pow(2, z) * 360 - 180);
+					};
+					function tile2lat(y, z) {
+						var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
+						return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
 					}
 					function toRad(deg) {
  						return deg * Math.PI/180;
@@ -53,17 +62,18 @@
 						return d;
 					}
 					var metersPerPixel = [156412,78206,39103,19551,9776,4888,2444,1222 ,611,305,153,76,38,19,10,5,2,1,0.6];
-					var zp = Math.pow(2, app.renderer.maxZ - app.pos.z);
-					var x = app.pos.x + (event.clientX - app.renderer.canvas.offsetLeft - app.renderer.canvas.width/2)*zp;
-					var y = app.pos.y + (event.clientY - app.renderer.canvas.offsetTop - app.renderer.canvas.height/2)*zp;
-					var lon = app.pos.tile2lon(x / app.renderer.tilesize, app.renderer.maxZ);
-					var lat = app.pos.tile2lat(y / app.renderer.tilesize, app.renderer.maxZ);
-
-					for(m in app.markers){
-						var marker = app.markers[m];
+					var center = map.center();
+					var zp = Math.pow(2, map.maxZ() - center.z);
+					var x = center.x + (event.clientX - e.target.offsetLeft - e.target.width/2)*zp;
+					var y = center.y + (event.clientY - e.target.offsetTop - e.target.height/2)*zp;
+					var lon = tile2lon(x / map.tileSize(), map.maxZ());
+					var lat = tile2lat(y / map.tileSize(), map.maxZ());
+					for(m in markers){
+						var marker = markers[m];
 						var dist = distance([marker.lon, marker.lat],[lon, lat]);
-						if(dist<10*metersPerPixel[app.pos.z-1]/1000){
-							infoWindow( marker.html || m, event.clientX - app.renderer.canvas.offsetLeft, event.clientY - app.renderer.canvas.offsetTop);
+						if(dist<10*metersPerPixel[center.z-1]/1000){
+							clearBubbles()
+							infoWindow( marker.html || m, event.clientX - e.target.offsetLeft, event.clientY - e.target.offsetTop);
 							break;
 						}
 					}
@@ -85,47 +95,48 @@
 				function clearBubbles(){
 					document.getElementById("bubbles").innerHTML = '';
 				}
-				app.preInitListeners.push(function(){
-					app.markers =    
-						{	'Berlin' : 
-							{	src : "../images/marker.png",
-								lon : 13.409500,
-								lat : 52.522488,
-								offsetX : -11,
-								offsetY : -25,
+				markers = {	'Berlin' : 
+						{	src : "../images/marker.png",
+							lon : 13.409500,
+							lat : 52.522488,
+							offsetX : -11,
+							offsetY : -25,
 								html : '<a href="http://berlin.de">Berlin</a>'
-							},
-							'Moskva' : 
-							{	src : "../images/marker.png",
-								lon : 37.617633,
-								lat : 55.755786,
-								offsetX : -11,
-								offsetY : -25
-							},
-							'Hong Kong' : 
-							{	src : "../images/marker.png",
-								lon : 114.10494,
-								lat : 22.381111,
-								offsetX : -11,
-								offsetY : -25
-							}
+						},
+						'Moskva' : 
+						{	src : "../images/marker.png",
+							lon : 37.617633,
+							lat : 55.755786,
+							offsetX : -11,
+							offsetY : -25
+						},
+						'Hong Kong' : 
+						{	src : "../images/marker.png",
+							lon : 114.10494,
+							lat : 22.381111,
+							offsetX : -11,
+							offsetY : -25
 						}
-				});
-				app.postInitListeners.push(function(){
-					app.renderer.canvas.addEventListener('mousedown', featureInfo, false);
-					app.zoomedListeners.push(clearBubbles);
-					app.movedListeners.push(clearBubbles);
-				});
+				}
+				var map =  slippymap("map", true, 0, 0, 0, markers).init();
+				map.fractionalZoom(false);
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
+				document.querySelectorAll("#map")[0].addEventListener('mousedown', featureInfo);
+
+				map.addMovedListeners(clearBubbles);
+				map.addZoomedListeners(clearBubbles);
+			});
 		</script>
 
 	</head>
 	<body>
 		<canvas id="map">
-			Your  browser doesn't support canvas elements.			
+			Your  browser doesn't support canvas elements.
 		</canvas>
 		<ul id="buttons">
-			<li><a class="zoomin" href="javascript:;" onclick="app.zoomIn(); return false;">+</a></li>
-			<li><a class="zoomout" href="javascript:;" onclick="app.zoomOut(); return false;">-</a></li>
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
 		</ul>
 		<div id="bubbles"></div>
 	</body>
