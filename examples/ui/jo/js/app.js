@@ -3,7 +3,8 @@ var canvas;
 var geonamesReq;
 var geolocation_error;
 var useProxy = false;
-var state = {lon:0, lat:0, z:0}
+var state = {lon:0, lat:0, z:0};
+var markers = {};
 document.addEventListener('DOMContentLoaded', function () {
 
     jo.load();
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
             htmlgroup = new joHTML(document.getElementById('templateMap').innerHTML)]);
 
             map.activate = function () {
-                canvas =  slippymap("map", true, state.z, state.lon, state.lat, {}).init();
+                canvas =  slippymap("map", true, state.z, state.lon, state.lat, markers).init();
 
                 document.getElementById("geo").removeAttribute("dispatched");
                 document.getElementById("geo").removeAttribute("error");
@@ -36,6 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 				document.querySelectorAll("#buttons .settings")[0].addEventListener('click', function(){
 	            	state = canvas.coords();
+	            	markers = canvas.getMarkers();
 					UI.show(menu);
 				});
                 
@@ -280,15 +282,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	                        src: "../../../images/marker.png",
     	                    lon: pos.lon,
         	                lat: pos.lat,
-            	            offsetX: -11,
-                	        offsetY: -25,
-                    	    alpha: 1
-                      	}
-                    );
-                    console.log(id, {
-	                        src: "../../../images/marker.png",
-    	                    lon: pos[0],
-        	                lat: pos[1],
             	            offsetX: -11,
                 	        offsetY: -25,
                     	    alpha: 1

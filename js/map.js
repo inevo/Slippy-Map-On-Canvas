@@ -425,6 +425,7 @@
                                         try {
                                             map.renderer.context.globalAlpha = map.markers[marker].alpha ||  alpha;
                                             map.renderer.context.drawImage(map.markers[marker].img, x, y);
+                                            map.markers[marker].bbox = [x,y+map.markers[marker].img.height,x+map.markers[marker].img.width,y];
                                         } catch (e) {}
                                     }
                                 } else {
@@ -656,6 +657,9 @@
                 setMarkers: function (markers) {
                     map.markers = markers;
                     map.renderer.refresh();
+                },
+                getMarkers: function () {
+                    return map.markers;
                 },
                 setMarker: function (id, marker) {
                     map.markers[id] = marker;
