@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html manifest="../map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | sparql</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				var map =  slippymap("map", true, 14, 13.379, 52.515).init();
+				var lastRefresh = 0;
+				function refresh(){
+					var now = (new Date()).getTime();
+					if(lastRefresh > now-1000) return;
+					lastRefresh = now;
+					sparql();
+				}
+				function sparql(){
+					console.log("sparql");
+					var dataRequest, sparql_select, sparql_query, coords, radius, limit;
+					radius = 0.01;
+					limit = 50;
+					coords = map.coords();
+					/* sparql, http://dbpedia.org/snorql/ */
+					sparql_select = 	'PREFIX geo: <http://www.w3.org/2003/01/geo/wgs84_pos#>'+
+										'SELECT ?subject ?label ?lat ?long WHERE {'+
+										'?subject geo:lat ?lat.'+
+										'?subject geo:long ?long.'+
+										'?subject rdfs:label ?label.'+
+										'FILTER(xsd:double(?lat) - '+coords.lat+' <= '+radius+' && '+coords.lat+' - xsd:double(?lat) <= '+radius+' &&'+
+										'xsd:double(?long) - '+coords.lon+' <= '+radius+' && '+coords.lon+' - xsd:double(?long) <= '+radius+' &&'+
+										'lang(?label) = "de"'+
+										').'+
+										'} LIMIT '+limit;
+					/* yql query encoded */
+					sparql_query = 		'http://dbpedia.org/sparql?default-graph-uri=http%3A//dbpedia.org&query='+
+										escape(sparql_select)+
+										'&format=application/sparql-results%2Bjson';
+										
+					/* send xhr request */
+					dataRequest = new XMLHttpRequest();
+					dataRequest.onreadystatechange = mark;
+					dataRequest.open('GET', sparql_query, true);
+					dataRequest.send();
+				}
+
+				/* process results */
+				function mark(){
+					if (this.readyState == 4 && this.status == 200) {
+						var query_results = {};
+						if(typeof JSON !== 'undefined'){
+							query_results = JSON.parse(this.responseText);
+						} else {
+							eval("query_results = "+this.responseText);
+						}
+						var marker, markers = [];
+						if(query_results.error){
+							console.log("sparql error: "+query_results.error.description);
+						} else {
+							var geonames = query_results.results.bindings || [];
+							for(var i=0; i<geonames.length; i++){
+								var marker = {};
+								console.log(geonames[i]);
+								marker.src = "../images/marker.png";
+								marker.lat = parseFloat(geonames[i].lat.value);
+								marker.lon = parseFloat(geonames[i].long.value);
+								marker.offsetX = -11;
+								marker.offsetY = -25;
+								marker.html = geonames[i].label.value;
+								markers.push(marker);
+							}
+						}
+						map.setMarkers(markers);
+					}
+				}
+				sparql();
+				document.querySelectorAll("#map")[0].addEventListener('mouseup', refresh);
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
+			});
+		</script>	
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
+		</ul>
+	</body>
+</html>
