@@ -33,7 +33,7 @@
 					var found = infowindow.getMarkerAt(x,y);
 					for (var m in found) {
 						if (found.hasOwnProperty(m)) {
-							infowindow.showInfo(x,y,found[m],m);
+							infowindow.showInfo(found[m].bbox[0]-found[m].offsetX,found[m].bbox[3]-found[m].offsetY,found[m],m);
 						}
 					}
 				},
