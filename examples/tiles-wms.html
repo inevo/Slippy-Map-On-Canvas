@@ -11,14 +11,33 @@
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
-				var map =  slippymap("map", true, 0, 0, 0, {}, {}, {
-					return "../tile_proxy.php?url="+
-							encode("http://a.tile.openstreetmap.org/" + z + "/" + x + "/" + y + ".png");
-				}				
-				}).init();
-				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
-				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
-			});
+				var tileprovider = function (x, y, z) {
+					function tile2lon(x, z) {
+						return (x / Math.pow(2, z) * 360 - 180);
+					};
+			
+					function tile2lat(y, z) {
+						var n = Math.PI - 2 * Math.PI * y / Math.pow(2, z);
+						return (180 / Math.PI * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n))));
+					}
+					var url="http://viz.globe.gov/viz-bin/wmt.cgi?";
+					var bbox = [tile2lon(x, z), tile2lat(y + 1, z), tile2lon(x + 1, z), tile2lat(y, z)];
+					url += "request=GetMap";
+					url += "&service=wms";
+					url += "&version=1.1.0";
+					url+="&layers=COASTLINES,NATIONAL,RTOPO";
+					url += "&styles=";
+					url += "&format=image/gif";
+					url += "&srs=EPSG:4326"; //54004??
+					url += "&bbox=" + bbox.join(",");
+					url += "&width=256";
+					url += "&height=256";
+					return url;
+				}			
+				var map = slippymap("map", true, 0, 0, 0, {}, {}, tileprovider).init();
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn, false);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut, false);
+			}, false);
 		</script>	
 	</head>
 	<body>

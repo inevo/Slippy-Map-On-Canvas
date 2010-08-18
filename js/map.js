@@ -6,8 +6,8 @@
  *  based on/ inspired by Tim Hutt, http://concentriclivers.com/slippymap.html
  *  added features like touch support, fractional zoom, markers ...
  */
-"use strict";
 (function (window) {
+	"use strict";
     if (typeof window.slippymap === 'undefined') {
         var slippymap = function (div, fullscreen, z, x, y, markers, tracks, tileprovider) {
             var $ = this ||  window;

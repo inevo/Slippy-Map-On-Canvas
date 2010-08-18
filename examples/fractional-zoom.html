@@ -36,11 +36,11 @@
 				var map =  slippymap("map", true, 0, 0, 0, markers).init();
 				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', function(e){
 					map.zoomIn(e, 0.1,false);
-				});
+				}, false);
 				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', function(e){
 					map.zoomOut(e, 0.1,false);
-				});
-			});
+				}, false);
+			}, false);
 		</script>	
 	</head>
 	<body>

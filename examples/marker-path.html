@@ -43,9 +43,9 @@
 				};
 
 				var map =  slippymap("map", true, 0, 0, 0, markers, tracks).init();
-				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn);
-				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut);
-			});
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn, false);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut, false);
+			}, false);
 		</script>	
 	</head>
 	<body>
