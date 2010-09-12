@@ -43,7 +43,7 @@
 		<script src="../js/map.js" type="text/javascript"></script>
 		<script type="text/javascript">
 			document.addEventListener('DOMContentLoaded', function(){
-				var a, b;
+				var a, b, syncLock;
 				a =  slippymap("map_a", false, 15, 13.4, 52.5).init();
 				b =  slippymap("map_b", false, 15, 13.4, 52.5, {}, {},
 						function(x,y,z){
@@ -51,7 +51,11 @@
 						}).init();
 
 				var sync = function(source, target){
+					// prevent notifier loop // race condition
+					if(syncLock) return;
+					syncLock = true;
 					target.center(source.center());
+					syncLock = false;
 				}
 				
 				a.addMovedListeners(function(){sync(a,b)});
