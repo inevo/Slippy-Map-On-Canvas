@@ -180,10 +180,14 @@
                             delta = -event.detail / 3;
                         }
                         if (delta > 0) {
-                            map.zoomIn({step: delta / 100});
+                            map.zoomIn({
+                                step: delta / 100
+                            });
                             map.zoomed();
                         } else if (delta < 0) {
-                            map.zoomOut({setp: -delta / 100});
+                            map.zoomOut({
+                                setp: -delta / 100
+                            });
                             map.zoomed();
                         }
                     },
@@ -252,11 +256,15 @@
                     gestureHandler: function (event) {
                         if (event.scale) {
                             if (event.scale > 1) {
-                                map.zoomIn((event.scale - 1) / 10);
+                                map.zoomIn({
+                                    step: (event.scale - 1) / 10
+                                });
                                 return true;
                             }
                             if (event.scale < 1) {
-                                map.zoomOut(event.scale / 10);
+                                map.zoomOut({
+                                    step: event.scale / 10
+                                });
                                 return true;
                             }
                         }
@@ -464,11 +472,9 @@
                         alpha: 0.8,
                         callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
                             map.renderer.context.globalAlpha = alpha;
-
                             function lon2x(lon) {
                                 return Math.round((map.pos.lon2posX(lon) - xMin) / zp * zf) - offsetX;
                             }
-
                             function lat2y(lat) {
                                 return Math.round((map.pos.lat2posY(lat) - yMin) / zp * zf) - offsetY;
                             }
@@ -555,7 +561,7 @@
                     setCenter: function (coords, options) {
                         options = options || {};
                         var animated = options.animated || false;
-                        if (!options.animated) {
+                        if (!animated) {
                             map.pos.x = coords.x;
                             map.pos.y = coords.y;
                             map.pos.z = coords.z || map.pos.z;
@@ -641,7 +647,6 @@
                                     state = 1;
                                 }
                                 return Math.pow(state, 2);
-
                             }
                         },
                         start: function (x, y, z) {
