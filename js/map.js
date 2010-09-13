@@ -197,8 +197,8 @@
                         }
                         var x = event.clientX - map.renderer.canvas.offsetLeft;
                         var y = event.clientY - map.renderer.canvas.offsetTop;
-                        var dX = x - map.renderer.canvas.width / 2;
-                        var dY = y - map.renderer.canvas.height / 2;
+                        var dX = (x - map.renderer.canvas.width / 2)/2;
+                        var dY = (y - map.renderer.canvas.height / 2)/2;
                         map.pos.move(dX * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()), dY * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()), {
                             animated: true
                         });
