@@ -14,8 +14,11 @@
                         lon = parseFloat(localStorage.getItem(ini.prefix + "lon"));
                         lat = parseFloat(localStorage.getItem(ini.prefix + "lat"));
                         zoom = parseFloat(localStorage.getItem(ini.prefix + "zoom"));
-                        map.recenter(lon, lat, zoom);
-                    } catch (e) {
+                        map.pos.x =  map.pos.lon2posX(lon);
+                        map.pos.y =  map.pos.lat2posY(lat);
+                        if(zoom>-1){
+                        	map.pos.z = zoom;
+                        }                    } catch (e) {
                         console.log('localStorage: ' + e);
                     }
                 },
