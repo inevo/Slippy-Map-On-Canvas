@@ -110,6 +110,12 @@
                     }
                 },
                 movedListeners: [],
+                moveEnded: function () {
+                     for (var i = 0; i < map.moveEndListeners.length; i++) {
+                         map.moveEndListeners[i]();
+                     }
+                 },
+                 moveEndListeners: [],
                 resized: function () {
                     if (fullscreen !== true) {
                         return;
@@ -161,9 +167,11 @@
                     },
                     mouseUp: function () {
                         map.events.dragging = false;
+                        map.moveEnded();
                     },
                     mouseOut: function () {
                         map.events.dragging = false;
+                        map.moveEnded();
                     },
                     mouseWheel: function (event) {
                         var delta = 0;
@@ -566,7 +574,12 @@
                             map.pos.y = coords.y;
                             map.pos.z = coords.z || map.pos.z;
                             map.renderer.refresh();
-                            map.zoomed();
+                            if (map.events.dragging) {
+                                map.moved();
+                            }
+                            else {
+                                map.moveEnded();
+                            }
                         } else {
                             map.pos.animation.start(coords.x, coords.y, false);
                         }
@@ -758,7 +771,7 @@
                     if (typeof coords !== 'object') {
                         return map.pos.getLonLat();
                     } else {
-                        map.pos.recenter(parseFloat(coords.lon), parseFloat(coords.lat), parseFloat(coords.zoom));
+                        map.recenter(parseFloat(coords.lon), parseFloat(coords.lat), parseFloat(coords.zoom));
                         map.renderer.refresh();
                     }
                     return this;
@@ -774,6 +787,9 @@
                 },
                 addMovedListeners: function (listener) {
                     map.movedListeners.push(listener);
+                },
+                addMoveEndListeners: function (listener) {
+                    map.moveEndListeners.push(listener);
                 },
                 addZoomedListeners: function (listener) {
                     map.zoomedListeners.push(listener);
