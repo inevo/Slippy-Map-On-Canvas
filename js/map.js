@@ -114,7 +114,7 @@
                     if (fullscreen !== true) {
                         return;
                     }
-                    map.renderer.canvas.width = $.innerWidt;
+                    map.renderer.canvas.width = $.innerWidth;
                     map.renderer.canvas.height = $.innerHeight;
                     map.renderer.refresh();
                 },
