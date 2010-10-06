@@ -98,24 +98,24 @@
                     map.pos.setCenter(coords);
                 },
                 /* keep track of zoom + pans */
-                zoomed: function () {
+                zoomed: function (options) {
                     for (var i = 0; i < map.zoomedListeners.length; i++) {
-                        map.zoomedListeners[i]();
+                        map.zoomedListeners[i](options);
                     }
                 },
                 zoomedListeners: [],
-                moved: function () {
+                moved: function (options) {
                     for (var i = 0; i < map.movedListeners.length; i++) {
-                        map.movedListeners[i]();
+                        map.movedListeners[i](options);
                     }
                 },
                 movedListeners: [],
-                moveEnded: function () {
-                     for (var i = 0; i < map.moveEndListeners.length; i++) {
-                         map.moveEndListeners[i]();
-                     }
-                 },
-                 moveEndListeners: [],
+                moveEnded: function (options) {
+                    for (var i = 0; i < map.moveEndListeners.length; i++) {
+                        map.moveEndListeners[i](options);
+                    }
+                },
+                moveEndListeners: [],
                 resized: function () {
                     if (fullscreen !== true) {
                         return;
@@ -160,7 +160,6 @@
                             var dY = y - map.events.lastMouseY;
                             map.pos.move(-dX * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()), -dY * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()));
                             map.renderer.refresh();
-                            map.moved();
                         }
                         map.events.lastMouseX = x;
                         map.events.lastMouseY = y;
@@ -189,14 +188,14 @@
                         }
                         if (delta > 0) {
                             map.zoomIn({
-                                step: delta / 100
+                                step: delta / 100,
+                                mouseWheel: true
                             });
-                            map.zoomed();
                         } else if (delta < 0) {
                             map.zoomOut({
-                                setp: -delta / 100
+                                step: -delta / 100,
+                                mouseWheel: true
                             });
-                            map.zoomed();
                         }
                     },
                     doubleClick: function (event) {
@@ -205,8 +204,8 @@
                         }
                         var x = event.clientX - map.renderer.canvas.offsetLeft;
                         var y = event.clientY - map.renderer.canvas.offsetTop;
-                        var dX = (x - map.renderer.canvas.width / 2)/2;
-                        var dY = (y - map.renderer.canvas.height / 2)/2;
+                        var dX = (x - map.renderer.canvas.width / 2) / 2;
+                        var dY = (y - map.renderer.canvas.height / 2) / 2;
                         map.pos.move(dX * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()), dY * $.Math.pow(2, map.renderer.maxZ - map.pos.getZoom()), {
                             animated: true
                         });
@@ -265,13 +264,15 @@
                         if (event.scale) {
                             if (event.scale > 1) {
                                 map.zoomIn({
-                                    step: (event.scale - 1) / 10
+                                    step: (event.scale - 1) / 10,
+                                    gesture: true
                                 });
                                 return true;
                             }
                             if (event.scale < 1) {
                                 map.zoomOut({
-                                    step: event.scale / 10
+                                    step: event.scale / 10,
+                                    gesture: true
                                 });
                                 return true;
                             }
@@ -480,9 +481,11 @@
                         alpha: 0.8,
                         callback: function (id, zi, zf, zp, sz, xMin, xMax, yMin, yMax, tilesize, offsetX, offsetY, alpha) {
                             map.renderer.context.globalAlpha = alpha;
+
                             function lon2x(lon) {
                                 return Math.round((map.pos.lon2posX(lon) - xMin) / zp * zf) - offsetX;
                             }
+
                             function lat2y(lat) {
                                 return Math.round((map.pos.lat2posY(lat) - yMin) / zp * zf) - offsetY;
                             }
@@ -569,16 +572,24 @@
                     setCenter: function (coords, options) {
                         options = options || {};
                         var animated = options.animated || false;
+                        var zoomChanged = false;
                         if (!animated) {
                             map.pos.x = coords.x;
                             map.pos.y = coords.y;
+                            if (coords.z && map.pos.z !== coords.z) {
+                                zoomChanged = true;
+                            }
                             map.pos.z = coords.z || map.pos.z;
                             map.renderer.refresh();
-                            if (map.events.dragging) {
-                                map.moved();
+                            if (map.events.dragging || options.animationStep) {
+                                options.dragging = map.events.dragging;
+                                map.moved(options);
                             }
                             else {
-                                map.moveEnded();
+                                map.moveEnded(options);
+                            }
+                            if (zoomChanged) {
+                                map.zoomed(options);
                             }
                         } else {
                             map.pos.animation.start(coords.x, coords.y, false);
@@ -604,7 +615,7 @@
                         if (!animated) {
                             map.pos.z = z;
                             map.renderer.refresh();
-                            map.zoomed();
+                            map.zoomed(options);
                         } else {
                             map.pos.animation.start(false, false, z);
                         }
@@ -681,29 +692,36 @@
                             $.setTimeout(map.pos.animation.step, map.pos.animation.interval);
                         },
                         step: function () {
-                            var progress;
+                            var progress, destX, destY, destZ;
                             if (!map.pos.animation.descriptor) {
                                 return;
                             }
                             if (map.pos.animation.descriptor.time < map.pos.animation.now()) {
-                                map.pos.x = map.pos.animation.descriptor.to.x || map.pos.x;
-                                map.pos.y = map.pos.animation.descriptor.to.y || map.pos.y;
-                                map.pos.z = map.pos.animation.descriptor.to.z || map.pos.z;
-                                map.renderer.refresh();
-                                map.zoomed();
+                                map.pos.setCenter({
+                                    x: map.pos.animation.descriptor.to.x || map.pos.x,
+                                    y: map.pos.animation.descriptor.to.y || map.pos.y,
+                                    z: map.pos.animation.descriptor.to.z || map.pos.z
+                                }, {
+                                    animationStep: false
+                                })
                             } else {
                                 progress = map.pos.animation.transition();
                                 if (typeof map.pos.animation.descriptor.to.x !== 'undefined' && map.pos.animation.descriptor.to.x !== false) {
-                                    map.pos.x = map.pos.animation.descriptor.from.x * progress + map.pos.animation.descriptor.to.x * (1 - progress);
+                                    destX = map.pos.animation.descriptor.from.x * progress + map.pos.animation.descriptor.to.x * (1 - progress);
                                 }
                                 if (typeof map.pos.animation.descriptor.to.y !== 'undefined' && map.pos.animation.descriptor.to.y !== false) {
-                                    map.pos.y = map.pos.animation.descriptor.from.y * progress + map.pos.animation.descriptor.to.y * (1 - progress);
+                                    destY = map.pos.animation.descriptor.from.y * progress + map.pos.animation.descriptor.to.y * (1 - progress);
                                 }
                                 if (typeof map.pos.animation.descriptor.to.z !== 'undefined' && map.pos.animation.descriptor.to.z !== false) {
-                                    map.pos.z = map.pos.animation.descriptor.from.z * progress + map.pos.animation.descriptor.to.z * (1 - progress);
+                                    destZ = map.pos.animation.descriptor.from.z * progress + map.pos.animation.descriptor.to.z * (1 - progress);
                                 }
-                                map.renderer.refresh();
-                                map.zoomed();
+                                map.pos.setCenter({
+                                    x: destX || map.pos.x,
+                                    y: destY || map.pos.y,
+                                    z: destZ || map.pos.z
+                                }, {
+                                    animationStep: true
+                                })
                                 $.setTimeout(map.pos.animation.step, map.pos.animation.interval);
                             }
                         }
