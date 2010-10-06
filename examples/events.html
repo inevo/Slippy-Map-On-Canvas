@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html manifest="../map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | custom dom events</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script type="text/javascript">
+			(function (window) {
+				if (typeof window.slippymap !== 'undefined') {
+					window.slippymap.extension.evt_xyz = function (map) {
+						var evt_xyz = {
+							init: function () {
+								// we have to wait until map.ini is called and 
+								// map.renderer.canvas is set
+								setTimeout(evt_xyz.addEventListener, 1000);
+							},
+							addEventListener: function () {
+								map.renderer.canvas.addEventListener('mouseover', evt_xyz.listener, false);
+							},
+							listener: function () {
+								console.log("evt_xyz: mouseover", map);
+							}
+						};
+						return evt_xyz;
+					};
+				}
+			})(window);
+			document.addEventListener('DOMContentLoaded', function () {
+				var map = slippymap("map", true, 0, 0, 0).init();
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn, false);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut, false);
+			}, false);
+		</script>	
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
+		</ul>
+	</body>
+</html>
