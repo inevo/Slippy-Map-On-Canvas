@@ -10,7 +10,8 @@
     "use strict";
     if (typeof window.slippymap === 'undefined') {
         var slippymap = function (div, fullscreen, z, x, y, markers, tracks, tileprovider) {
-            var $ = this || window;
+            //var $ = this || window;
+            var $ = window;
             var map = {
                 init: function () {
                     if ($.document.getElementById(div)) {
@@ -18,9 +19,9 @@
                             viewportHeight = $.innerHeight;
                         map.pos.x = (map.pos && map.pos.x) || map.pos.lon2posX(x);
                         map.pos.y = (map.pos && map.pos.y) || map.pos.lat2posY(y);
-                        map.pos.z = (map.pos && map.pos.z) || z;
+                        map.pos.z = (map.pos && map.pos.z) || map.pos.boundZoom(z);
                         map.renderer.canvas = $.document.getElementById(div);
-                        if (fullscreen === true) {
+                          if (fullscreen === true) {
                             map.renderer.canvas.width = viewportWidth;
                             map.renderer.canvas.height = viewportHeight;
                         }
@@ -29,7 +30,7 @@
                         map.renderer.refresh();
                         map.events.init();
                     } else {
-                        $.console.log("canvas not found");
+                        //$.console.log("canvas not found");
                     }
                 },
                 div: div,
@@ -78,14 +79,14 @@
                             step = 1;
                         }
                     }
-                    if (map.pos.getZoom() > 0) {
+                    if (map.pos.getZoom() > map.renderer.minZ) {
                         if (round === false) {
                             map.pos.setZoom(map.pos.z - step, options);
                         } else {
                             map.pos.setZoom($.Math.round(map.pos.z - step), options);
                         }
-                        if (map.pos.getZoom() < 0) {
-                            map.pos.setZoom(0, options);
+                        if (map.pos.getZoom() < map.renderer.minZ) {
+                            map.pos.setZoom(map.renderer.minZ, options);
                         }
                     }
                 },
@@ -305,6 +306,7 @@
                     canvas: {},
                     context: {},
                     maxZ: 18,
+                    minZ: 0,
                     lastRenderTime: 0,
                     tiles: [],
                     tilecount: 0,
@@ -579,7 +581,7 @@
                             if (coords.z && map.pos.z !== coords.z) {
                                 zoomChanged = true;
                             }
-                            map.pos.z = coords.z || map.pos.z;
+                            map.pos.z = map.pos.boundZoom(coords.z);
                             map.renderer.refresh();
                             if (map.events.dragging || options.animationStep) {
                                 options.dragging = map.events.dragging;
@@ -609,7 +611,20 @@
                             y: current.y + dy
                         }, options);
                     },
+                    boundZoom: function(z) {
+                        if (typeof z !== 'number') {
+                            return map.pos.z || map.renderer.minZ;
+                        }
+                        else if (z < map.renderer.minZ) {
+                             return map.renderer.minZ;
+                        }
+                        else if (z > map.renderer.maxZ) {
+                             return map.renderer.maxZ;
+                        }
+                        return z;
+                    },
                     setZoom: function (z, options) {
+                        z = map.pos.boundZoom(z);
                         options = options || {};
                         var animated = options.animated || false;
                         if (!animated) {
@@ -780,8 +795,31 @@
                 maxZ: function (z) {
                     if (typeof z !== 'number') {
                         return map.renderer.maxZ;
-                    } else {
-                        map.renderer.maxZ = z;
+                    }
+                    else {
+                        if (z < map.renderer.minZ) {
+                            map.renderer.maxZ = map.renderer.minZ;
+                        }
+                        else {
+                            map.renderer.maxZ = z;
+                        }
+                     }
+                    return this;
+                },
+                minZ: function (z) {
+                    if (typeof z !== 'number') {
+                        return map.renderer.minZ;
+                    }
+                    else {
+                        if (z < 0) {
+                            map.renderer.minZ = 0;
+                        }
+                        else if (z > map.renderer.maxZ) {
+                            map.renderer.minZ = map.renderer.maxZ;
+                        }
+                        else {
+                            map.renderer.minZ = z;
+                        }
                     }
                     return this;
                 },
