@@ -616,7 +616,7 @@
                     },
                     getVisibleBounds: function() {
                         var vs =  map.pos.visibleSize();
-                        var visBounds = {};
+                        var visBounds = {}; 
                         visBounds.left = map.pos.tile2lon((map.pos.x - vs.w/2) / map.renderer.tilesize, map.renderer.maxZ);
                         visBounds.right = map.pos.tile2lon((map.pos.x + vs.w/2) / map.renderer.tilesize,map.renderer.maxZ);
                         visBounds.top = map.pos.tile2lat((map.pos.y - vs.h/2) / map.renderer.tilesize, map.renderer.maxZ);
