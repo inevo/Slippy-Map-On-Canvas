@@ -10,26 +10,29 @@
     "use strict";
     if (typeof window.slippymap === 'undefined') {
         var slippymap = function (div, fullscreen, z, x, y, markers, tracks, tileprovider) {
-            var $ = this || window;
+            //var $ = this || window;
+            var $ = window;
             var map = {
                 init: function () {
                     if ($.document.getElementById(div)) {
                         var viewportWidth = $.innerWidth,
                             viewportHeight = $.innerHeight;
-                        map.pos.x = (map.pos && map.pos.x) || map.pos.lon2posX(x);
-                        map.pos.y = (map.pos && map.pos.y) || map.pos.lat2posY(y);
-                        map.pos.z = (map.pos && map.pos.z) || z;
                         map.renderer.canvas = $.document.getElementById(div);
-                        if (fullscreen === true) {
+                          if (fullscreen === true) {
                             map.renderer.canvas.width = viewportWidth;
                             map.renderer.canvas.height = viewportHeight;
                         }
                         map.renderer.context = map.renderer.canvas.getContext("2d");
                         map.renderer.sortLayers();
+
+                        map.pos.z = (map.pos && map.pos.z) || map.pos.boundZoom(z);
+                        map.pos.setX((map.pos && map.pos.x) || map.pos.lon2posX(x));  // after z and canvas set...
+                        map.pos.setY((map.pos && map.pos.y) || map.pos.lat2posY(y));
+
                         map.renderer.refresh();
                         map.events.init();
                     } else {
-                        $.console.log("canvas not found");
+                        //$.console.log("canvas not found");
                     }
                 },
                 div: div,
@@ -78,14 +81,14 @@
                             step = 1;
                         }
                     }
-                    if (map.pos.getZoom() > 0) {
+                    if (map.pos.getZoom() > map.renderer.minZ) {
                         if (round === false) {
                             map.pos.setZoom(map.pos.z - step, options);
                         } else {
                             map.pos.setZoom($.Math.round(map.pos.z - step), options);
                         }
-                        if (map.pos.getZoom() < 0) {
-                            map.pos.setZoom(0, options);
+                        if (map.pos.getZoom() < map.renderer.minZ) {
+                            map.pos.setZoom(map.renderer.minZ, options);
                         }
                     }
                 },
@@ -196,7 +199,7 @@
                             map.zoomOut({
                                 setp: -delta / 100
                             });
-                            map.zoomed();
+                            //map.zoomed();
                         }
                     },
                     doubleClick: function (event) {
@@ -304,6 +307,7 @@
                     canvas: {},
                     context: {},
                     maxZ: 18,
+                    minZ: 0,
                     lastRenderTime: 0,
                     tiles: [],
                     tilecount: 0,
@@ -566,13 +570,66 @@
                 },
                 /* positioning, conversion between pixel + lon/lat */
                 pos: {
-                    setCenter: function (coords, options) {
+                    visibleSize: function() {
+                        if (!map.pos.cachedValues ||
+                                map.pos.cachedValues.zoom != map.pos.z ||
+                                map.pos.cachedValues.width != map.renderer.canvas.width ||
+                                map.pos.cachedValues.height != map.renderer.canvas.height) {
+                            map.pos.cachedValues = {};
+                            map.pos.cachedValues.zi = parseInt(map.pos.z, 10);
+                            map.pos.cachedValues.zp = $.Math.pow(2, map.renderer.maxZ - map.pos.cachedValues.zi);
+                            map.pos.cachedValues.w = map.renderer.canvas.width * map.pos.cachedValues.zp;
+                            map.pos.cachedValues.h = map.renderer.canvas.height * map.pos.cachedValues.zp;
+                            map.pos.cachedValues.zoom = map.pos.z;
+                            map.pos.cachedValues.width = map.renderer.canvas.width;
+                            map.pos.cachedValues.height = map.renderer.canvas.height;
+                        }
+                        return map.pos.cachedValues;
+                    },
+                    setX: function (x) {
+                        if (map.pos.minX && map.pos.maxX) {
+                            var vs =  map.pos.visibleSize();
+                            var xMin = Math.floor(x - vs.w/2);
+                            var xMax = Math.ceil(x + vs.w/2);
+                            if (xMin < map.pos.minX)  {
+                                x = map.pos.minX + vs.w / 2;
+                            }
+                            else if (xMax > map.pos.maxX) {
+                                x = map.pos.maxX - vs.w / 2;
+                            }
+                        }
+                        map.pos.x = x;
+                    },
+                    setY: function (y) {
+                         if (map.pos.minY && map.pos.maxY) {
+                             var vs =  map.pos.visibleSize();
+                             var yMin = Math.floor(y - vs.h/2);
+                             var yMax = Math.ceil(y + vs.h/2);
+                              if (yMin < map.pos.minY)  {
+                                 y = map.pos.minY + vs.h/2;
+                             }
+                             else if (yMax > map.pos.maxY) {
+                                 y = map.pos.maxY - vs.h/2;
+                             }
+                         }
+                         map.pos.y = y;
+                    },
+                    getVisibleBounds: function() {
+                        var vs =  map.pos.visibleSize();
+                        var visBounds = {};
+                        visBounds.left = map.pos.tile2lon((map.pos.x - vs.w/2) / map.renderer.tilesize, map.renderer.maxZ);
+                        visBounds.right = map.pos.tile2lon((map.pos.x + vs.w/2) / map.renderer.tilesize,map.renderer.maxZ);
+                        visBounds.top = map.pos.tile2lat((map.pos.y - vs.h/2) / map.renderer.tilesize, map.renderer.maxZ);
+                        visBounds.bottom = map.pos.tile2lat((map.pos.y + vs.h/2) / map.renderer.tilesize, map.renderer.maxZ);
+                        return visBounds;
+                    },
+                   setCenter: function (coords, options) {
                         options = options || {};
                         var animated = options.animated || false;
                         if (!animated) {
-                            map.pos.x = coords.x;
-                            map.pos.y = coords.y;
-                            map.pos.z = coords.z || map.pos.z;
+                            map.pos.setX(coords.x);
+                            map.pos.setY(coords.y);
+                            map.pos.z = map.pos.boundZoom(coords.z);
                             map.renderer.refresh();
                             if (map.events.dragging) {
                                 map.moved();
@@ -598,7 +655,20 @@
                             y: current.y + dy
                         }, options);
                     },
+                    boundZoom: function(z) {
+                        if (typeof z !== 'number') {
+                            return map.pos.z || map.renderer.minZ;
+                        }
+                        else if (z < map.renderer.minZ) {
+                             return map.renderer.minZ;
+                        }
+                        else if (z > map.renderer.maxZ) {
+                             return map.renderer.maxZ;
+                        }
+                        return z;
+                    },
                     setZoom: function (z, options) {
+                        z = map.pos.boundZoom(z);
                         options = options || {};
                         var animated = options.animated || false;
                         if (!animated) {
@@ -686,18 +756,18 @@
                                 return;
                             }
                             if (map.pos.animation.descriptor.time < map.pos.animation.now()) {
-                                map.pos.x = map.pos.animation.descriptor.to.x || map.pos.x;
-                                map.pos.y = map.pos.animation.descriptor.to.y || map.pos.y;
+                                map.pos.setX(map.pos.animation.descriptor.to.x || map.pos.x);
+                                map.pos.setY(map.pos.animation.descriptor.to.y || map.pos.y);
                                 map.pos.z = map.pos.animation.descriptor.to.z || map.pos.z;
                                 map.renderer.refresh();
                                 map.zoomed();
                             } else {
                                 progress = map.pos.animation.transition();
                                 if (typeof map.pos.animation.descriptor.to.x !== 'undefined' && map.pos.animation.descriptor.to.x !== false) {
-                                    map.pos.x = map.pos.animation.descriptor.from.x * progress + map.pos.animation.descriptor.to.x * (1 - progress);
+                                    map.pos.setX(map.pos.animation.descriptor.from.x * progress + map.pos.animation.descriptor.to.x * (1 - progress));
                                 }
                                 if (typeof map.pos.animation.descriptor.to.y !== 'undefined' && map.pos.animation.descriptor.to.y !== false) {
-                                    map.pos.y = map.pos.animation.descriptor.from.y * progress + map.pos.animation.descriptor.to.y * (1 - progress);
+                                    map.pos.setY(map.pos.animation.descriptor.from.y * progress + map.pos.animation.descriptor.to.y * (1 - progress));
                                 }
                                 if (typeof map.pos.animation.descriptor.to.z !== 'undefined' && map.pos.animation.descriptor.to.z !== false) {
                                     map.pos.z = map.pos.animation.descriptor.from.z * progress + map.pos.animation.descriptor.to.z * (1 - progress);
@@ -744,8 +814,8 @@
                             z: map.pos.getZoom()
                         };
                     } else {
-                        map.pos.x = parseFloat(coords.x);
-                        map.pos.y = parseFloat(coords.y);
+                        map.pos.setX(parseFloat(coords.x));
+                        map.pos.setY(parseFloat(coords.y));
                         map.pos.setZoom(parseFloat(coords.z), options);
                         map.renderer.refresh();
                     }
@@ -762,10 +832,47 @@
                 maxZ: function (z) {
                     if (typeof z !== 'number') {
                         return map.renderer.maxZ;
-                    } else {
-                        map.renderer.maxZ = z;
+                    }
+                    else {
+                        if (z < map.renderer.minZ) {
+                            map.renderer.maxZ = map.renderer.minZ;
+                        }
+                        else {
+                            map.renderer.maxZ = z;
+                        }
+                     }
+                    return this;
+                },
+                minZ: function (z) {
+                    if (typeof z !== 'number') {
+                        return map.renderer.minZ;
+                    }
+                    else {
+                        if (z < 0) {
+                            map.renderer.minZ = 0;
+                        }
+                        else if (z > map.renderer.maxZ) {
+                            map.renderer.minZ = map.renderer.maxZ;
+                        }
+                        else {
+                            map.renderer.minZ = z;
+                        }
                     }
                     return this;
+                },
+                setPanBounds: function(left, top, right, bottom) {
+                    if (typeof left == 'number' && typeof top == 'number' &&
+                        typeof right == 'number' && typeof bottom == 'number' &&
+                        parseFloat(left) < parseFloat(right) &&
+                        parseFloat(bottom) < parseFloat(top) ) {
+                        map.pos.minX = map.pos.lon2posX(parseFloat(left));
+                        map.pos.maxX = map.pos.lon2posX(parseFloat(right));
+                        map.pos.minY = map.pos.lat2posY(parseFloat(top));    // NB pixel origin is top left
+                        map.pos.maxY = map.pos.lat2posY(parseFloat(bottom)); // NB pixel origin is top left
+                    }
+                },
+                getVisibleBounds: function() {
+                    return map.pos.getVisibleBounds();
                 },
                 coords: function (coords) {
                     if (typeof coords !== 'object') {
