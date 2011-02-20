@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html manifest="../map.manifest">
+	<head>
+		<meta charset="utf-8">
+		<title>Slippy Map on Canvas (HTML5) | markers | opencellid</title>
+		<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=no;"/>
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<link rel="apple-touch-icon-precomposed" href="../images/touch-icon.png" />
+		<link href="../css/map.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/infowindow.css" rel="stylesheet" type="text/css" media="all" />
+		<link href="../css/ui.css" rel="stylesheet" type="text/css" media="all" />
+		<style>
+			#loading {
+				position: absolute;
+				top:0;
+				left:0;
+				right:0;
+				bottom:0;
+				background: rgba(0,0,0,0.7);
+				display: none;
+				text-align:center;
+			}
+			#loading .inner {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				width: 120px;
+				height: 40px;
+				line-height: 40px;
+				margin: -20px 0px 0px -60px;
+				border: solid 1px #000;
+				background: rgba(255,255,255,0.9);
+				-webkit-border-radius: 11px;
+				color: #000;
+				font-weight: bold;
+			}
+		</style>
+		<script src="../js/map.js" type="text/javascript"></script>
+		<script src="../js/map.infowindow.js" type="text/javascript"></script>
+
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+
+				var map =  slippymap("map", true, 15, 13.4033, 52.5462).init();
+
+				showCellTowers = function(){
+					var apikey = 'f751d63a9d91a0b4494b69dccdb453a5';
+					var markers = {}
+					var bbox = map.getVisibleBounds();
+					var latMin = bbox['left'];
+					var lonMin = bbox['bottom'];
+					var latMax = bbox['right'];
+					var lonMax  = bbox['top'];
+					var url = 'http://www.opencellid.org/cell/getInArea/?key='+apikey+'&BBOX='+latMin+','+lonMin+','+latMax+','+lonMax;
+					var request = new XMLHttpRequest();
+					document.querySelectorAll("#loading .inner")[0].innerHTML = "Loading...";
+					document.querySelectorAll("#loading")[0].style.display='block';					
+					request.open("GET", url);
+					request.onload = function(){
+						var placemarks = request.responseXML.getElementsByTagName("Placemark");
+						for(var i=0; i<placemarks.length;i++){
+							var placemark = placemarks[i];
+							var name = placemark.getElementsByTagName("name")[0].childNodes[0].nodeValue;
+							var description = placemark.getElementsByTagName("description")[0].childNodes[0].nodeValue;
+							var operator_mnc = parseInt(name.split(" ")[2].split(":")[1]);
+							var operator_mcc = parseInt(name.split(" ")[1].split(":")[1]);
+							var icon = "../images/marker.png";
+							if(operator_mcc == 262){
+								switch(operator_mnc){
+									case 1: icon = "http://www.t-mobile.de/favicon.ico";
+											break;
+									case 2: icon = "http://www.vodafone.de/favicon.ico";
+											break;
+									case 3: icon = "http://www.e-plus.de/favicon.ico";
+											break;
+									case 7: icon = "http://o2online.de/favicon.ico";
+											break;
+									default:
+											icon = "../images/marker.png";
+								}
+							}
+							var coordinates = placemark.getElementsByTagName("coordinates")[0].childNodes[0].nodeValue;
+							var lon_lat = coordinates.split(",");
+							markers[i] = { 	src : icon,
+											lon : parseFloat(lon_lat[0]),
+											lat : parseFloat(lon_lat[1]),
+											offsetX : -11,
+											offsetY : -25,
+											html : name+"<br />"+description
+							}
+						}
+						map.setMarkers(markers);
+						document.querySelectorAll("#loading .inner")[0].innerHTML = "Found: "+placemarks.length;
+						setTimeout(function(){
+							document.querySelectorAll("#loading")[0].style.display='none';
+						},1000);
+
+					};
+					request.send();
+				}
+				document.querySelectorAll("#buttons .zoomin")[0].addEventListener('click', map.zoomIn, false);
+				document.querySelectorAll("#buttons .zoomout")[0].addEventListener('click', map.zoomOut, false);
+				document.querySelectorAll("#buttons .info")[0].addEventListener('click', showCellTowers, false);
+				document.querySelectorAll("#map")[0].addEventListener('mousedown', map.infowindow.featureInfo, false);
+				map.addMovedListeners(map.infowindow.clearInfo);
+				map.addZoomedListeners(map.infowindow.clearInfo);
+			}, false);
+		</script>	
+	</head>
+	<body>
+		<canvas id="map">
+			Your  browser doesn't support canvas elements.			
+		</canvas>
+		<ul id="buttons">
+			<li><a class="zoomin">+</a></li>
+			<li><a class="zoomout">-</a></li>
+			<li><a class="info">i</a></li>
+		</ul>
+		<div id="loading">
+			<div class="inner">
+			</div>
+		</div>
+	</body>
+</html>
